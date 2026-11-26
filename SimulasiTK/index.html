@@ -3,69 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#145C48" />
+  <meta name="theme-color" content="#064E3B" />
   <meta name="author" content="Dul Muid (Bang Dul)" />
   <meta name="description" content="Simulator Ketenagakerjaan Indonesia — Payroll, BPJS, PT Taspen, Pesangon PP 35/2021, Kompensasi PKWT & PPh 21. Karya Dul Muid (Bang Dul)." />
 
-  <!-- Ikon & Manifest PWA (Gunakan file icon-192.png & icon-512.png milik Anda) -->
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="manifest" href="manifest.json" />
 
-  <title>Simulator Ketenagakerjaan Indonesia — by Bang Dul</title>
+  <title>SimKerja ID — Simulator Ketenagakerjaan Indonesia</title>
+
+  <!-- Font Plus Jakarta Sans opsional (otomatis fallback ke system font saat offline) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- SheetJS opsional untuk ekspor .xlsx native (otomatis fallback ke .xls offline saat tanpa internet) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 
   <style>
     :root {
-      --primary: #145C48;
-      --primary-dark: #0E4234;
-      --primary-light: #E8F3F0;
-      --accent: #0F766E;
-      --bg: #F3F6F5;
+      --primary: #065F46;
+      --primary-dark: #064E3B;
+      --primary-soft: #ECFDF5;
+      --primary-border: #A7F3D0;
+      --bg: #F3F5F7;
       --surface: #FFFFFF;
-      --text: #1E293B;
+      --surface-subtle: #F8FAFC;
+      --text: #0F172A;
+      --text-secondary: #334155;
       --text-muted: #64748B;
-      --border: #DCE4E2;
+      --border: #E2E8F0;
+      --border-strong: #CBD5E1;
       --danger: #B91C1C;
       --danger-bg: #FEF2F2;
-      --warning: #B45309;
+      --warning: #92400E;
       --warning-bg: #FFFBEB;
-      --info: #1D4ED8;
-      --info-bg: #EFF6FF;
-      --radius: 10px;
-      --shadow: 0 2px 8px rgba(20, 92, 72, 0.07);
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 8px;
+      --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background: var(--bg);
       color: var(--text);
       font-size: 14px;
-      line-height: 1.45;
-      padding-bottom: 76px;
+      line-height: 1.5;
+      padding-bottom: 126px;
     }
 
-    /* Header */
+    /* =========================================================================
+       HEADER (CLEAN LIGHT ENTERPRISE BAR — ANTI OVERLAP)
+       ========================================================================= */
     .app-header {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-      color: #fff;
-      padding: 12px 16px;
+      background: var(--surface);
+      border-top: 3.5px solid var(--primary-dark);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
       position: sticky;
       top: 0;
-      z-index: 40;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+      z-index: 45;
+      box-shadow: var(--shadow-xs);
     }
 
     .header-inner {
-      max-width: 1180px;
+      max-width: 1200px;
       margin: 0 auto;
       display: flex;
       align-items: center;
@@ -77,14 +90,17 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex: 1 1 auto;
       min-width: 0;
+      overflow: hidden;
     }
 
     .brand-icon {
-      width: 36px;
-      height: 36px;
-      background: rgba(255,255,255,0.16);
-      border-radius: 8px;
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--surface-subtle);
       display: grid;
       place-items: center;
       flex-shrink: 0;
@@ -97,72 +113,92 @@
       object-fit: cover;
     }
 
-    .brand h1 {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.2px;
+    .brand-text {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .brand-title {
+      font-size: 15.5px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.25;
+    }
+
+    .title-desktop { display: inline; }
+    .title-mobile { display: none; }
+
+    .brand-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 500;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .brand p {
-      font-size: 11px;
-      opacity: 0.85;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .header-badges {
+    .header-actions {
       display: flex;
       align-items: center;
       gap: 6px;
       flex-shrink: 0;
     }
 
-    .badge-pill {
-      font-size: 11px;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.16);
-      color: #fff;
+    .chip-status {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      white-space: nowrap;
-      border: none;
-    }
-
-    .badge-btn {
-      cursor: pointer;
-      font-weight: 600;
-      transition: background 0.15s;
-    }
-
-    .badge-btn:hover {
-      background: rgba(255,255,255,0.26);
-    }
-
-    .badge-install {
-      background: #FACC15;
-      color: #1E293B;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      color: var(--primary-dark);
+      font-size: 11px;
       font-weight: 700;
-      cursor: pointer;
+      white-space: nowrap;
     }
 
     .dot-status {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #4ADE80;
+      background: #10B981;
+      flex-shrink: 0;
     }
 
     .dot-status.offline {
-      background: #FBBF24;
+      background: #F59E0B;
     }
 
-    /* Desktop Top Nav */
+    .chip-creator {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-strong);
+      color: var(--text-secondary);
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .chip-creator:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    /* =========================================================================
+       DESKTOP NAVIGATION
+       ========================================================================= */
     .desktop-nav {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -170,17 +206,17 @@
     }
 
     .desktop-nav-inner {
-      max-width: 1180px;
+      max-width: 1200px;
       margin: 0 auto;
       display: flex;
-      gap: 4px;
+      gap: 6px;
     }
 
     .nav-tab {
       border: none;
       background: transparent;
       color: var(--text-muted);
-      padding: 11px 16px;
+      padding: 12px 16px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
@@ -193,32 +229,107 @@
 
     .nav-tab:hover {
       color: var(--primary);
-      background: var(--primary-light);
     }
 
     .nav-tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
+      color: var(--primary-dark);
+      border-bottom-color: var(--primary-dark);
+      font-weight: 700;
     }
 
-    /* Main Container */
+    /* =========================================================================
+       MAIN CONTAINER & DEDICATED PWA INSTALL BANNER
+       ========================================================================= */
     .container {
-      max-width: 1180px;
+      max-width: 1200px;
       margin: 14px auto;
-      padding: 0 12px;
+      padding: 0 14px;
     }
 
-    /* Global Entity Selector Bar */
+    .install-banner[hidden] {
+      display: none !important;
+    }
+
+    .install-banner {
+      background: linear-gradient(135deg, #064E3B 0%, #065F46 100%);
+      color: #fff;
+      border-radius: var(--radius-md);
+      padding: 11px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .install-banner-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .install-banner-info img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .install-banner-title {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .install-banner-desc {
+      font-size: 11.5px;
+      opacity: 0.88;
+    }
+
+    .install-banner-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-install-now {
+      background: #FACC15;
+      color: #0F172A;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-install-later {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* =========================================================================
+       ENTITY PROFILE & IDENTITY BAR
+       ========================================================================= */
     .entity-bar {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-left: 4px solid var(--primary);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      margin-bottom: 14px;
-      box-shadow: var(--shadow);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-xs);
       display: grid;
-      grid-template-columns: 1.4fr 1fr;
+      grid-template-columns: 1.35fr 1fr;
       gap: 12px;
       align-items: end;
     }
@@ -226,48 +337,67 @@
     .grid-2 {
       display: grid;
       grid-template-columns: 1.05fr 0.95fr;
-      gap: 14px;
+      gap: 16px;
       align-items: start;
     }
 
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px;
-      box-shadow: var(--shadow);
-      margin-bottom: 14px;
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow-xs);
+      margin-bottom: 16px;
     }
 
     .card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-bottom: 9px;
-      margin-bottom: 12px;
+      gap: 8px;
+      padding-bottom: 11px;
+      margin-bottom: 14px;
       border-bottom: 1px solid var(--border);
     }
 
     .card-title {
-      font-size: 14px;
+      font-size: 14.5px;
       font-weight: 700;
-      color: var(--primary-dark);
+      color: var(--text);
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
     }
 
-    /* Form Controls */
+    .card-title svg {
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .pill-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    /* =========================================================================
+       FORM CONTROLS & PREFIX CURRENCY INPUTS
+       ========================================================================= */
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
     }
 
     .form-group.full {
@@ -277,7 +407,7 @@
     label {
       font-size: 12px;
       font-weight: 600;
-      color: #334155;
+      color: var(--text-secondary);
     }
 
     .hint {
@@ -289,205 +419,243 @@
     input[type="number"],
     select {
       width: 100%;
-      padding: 8px 10px;
-      border: 1px solid #CBD5E1;
-      border-radius: 7px;
-      font-size: 13px;
+      height: 40px;
+      padding: 0 11px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
       color: var(--text);
-      background: #fff;
-      transition: border-color 0.15s;
+      background: var(--surface);
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     input:focus, select:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 2.5px rgba(20, 92, 72, 0.12);
+      box-shadow: 0 0 0 3px rgba(6, 95, 70, 0.12);
     }
 
-    .num-input {
+    .currency-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .currency-prefix {
+      position: absolute;
+      left: 11px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .currency-wrap input {
+      padding-left: 34px;
       text-align: right;
       font-variant-numeric: tabular-nums;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .check-row {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      align-items: flex-start;
+      gap: 9px;
       padding: 6px 0;
       cursor: pointer;
       font-size: 12.5px;
+      color: var(--text-secondary);
     }
 
     .check-row input[type="checkbox"] {
       width: 16px;
       height: 16px;
-      accent-color: var(--primary);
+      margin-top: 2px;
+      accent-color: var(--primary-dark);
+      flex-shrink: 0;
     }
 
-    /* Sub-panels */
     .sub-panel {
-      background: #F8FAFC;
-      border: 1px dashed #CBD5E1;
-      border-radius: 8px;
-      padding: 10px;
-      margin-top: 8px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-top: 12px;
     }
 
     .sub-panel-title {
       font-size: 12px;
       font-weight: 700;
-      color: var(--primary);
+      color: var(--primary-dark);
       margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    /* Alerts & Banners */
+    /* =========================================================================
+       ALERTS & KPI SUMMARY CARDS
+       ========================================================================= */
     .alert {
-      padding: 10px 12px;
-      border-radius: 8px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
       font-size: 12.5px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       display: flex;
-      gap: 9px;
+      gap: 10px;
       align-items: flex-start;
     }
 
     .alert-warning {
       background: var(--warning-bg);
       border: 1px solid #FDE68A;
-      color: #92400E;
+      color: var(--warning);
     }
 
-    /* KPI Summary Cards */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 9px;
+      gap: 10px;
       margin-bottom: 12px;
     }
 
     .kpi-box {
-      background: #F8FAFC;
+      background: var(--surface-subtle);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px;
+      border-radius: var(--radius-md);
+      padding: 11px 12px;
     }
 
     .kpi-box.highlight {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      background: linear-gradient(135deg, #064E3B 0%, #065F46 100%);
       color: #fff;
-      border-color: var(--primary);
+      border-color: #064E3B;
       grid-column: 1 / -1;
+      padding: 14px;
     }
 
     .kpi-label {
-      font-size: 11px;
+      font-size: 11.5px;
+      font-weight: 600;
       opacity: 0.85;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
 
     .kpi-value {
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 15.5px;
+      font-weight: 800;
       font-variant-numeric: tabular-nums;
+      letter-spacing: -0.2px;
     }
 
     .kpi-box.highlight .kpi-value {
-      font-size: 20px;
+      font-size: 22px;
     }
 
     .terbilang-box {
-      background: var(--primary-light);
-      border-left: 3px solid var(--primary);
-      padding: 8px 10px;
-      border-radius: 6px;
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
       font-size: 12px;
+      font-weight: 600;
       font-style: italic;
       color: var(--primary-dark);
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
-    /* Accounting Tables */
+    /* =========================================================================
+       ACCOUNTING TABLES
+       ========================================================================= */
     .acc-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 12.5px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .acc-table th, .acc-table td {
-      padding: 6px 8px;
-      border-bottom: 1px solid #EDF2F7;
+      padding: 8px 9px;
+      border-bottom: 1px solid var(--border);
     }
 
     .acc-table th {
-      background: #F8FAFC;
+      background: var(--surface-subtle);
       text-align: left;
       font-weight: 700;
-      color: #475569;
-      font-size: 11.5px;
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
     }
 
     .acc-table td.amt, .acc-table th.amt {
       text-align: right;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
+      font-weight: 600;
     }
 
     .acc-table tr.sec-head td {
       background: #F1F5F9;
       font-weight: 700;
-      color: var(--primary-dark);
+      color: var(--text);
       font-size: 11.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
+      padding-top: 9px;
+      padding-bottom: 9px;
     }
 
     .acc-table tr.total-row td {
-      font-weight: 700;
-      background: #F8FAFC;
-      border-top: 1.5px solid #CBD5E1;
+      font-weight: 800;
+      background: var(--surface-subtle);
+      border-top: 1.5px solid var(--border-strong);
       border-bottom: 2px solid #94A3B8;
+      color: var(--text);
     }
 
-    .neg { color: var(--danger); }
-    .pos { color: var(--primary); }
+    .neg { color: var(--danger) !important; }
+    .pos { color: var(--primary) !important; }
 
-    /* Buttons */
+    /* =========================================================================
+       BUTTONS & SEGMENTED CONTROLS
+       ========================================================================= */
     .btn-row {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
       gap: 8px;
-      margin-top: 10px;
+      margin-top: 12px;
     }
 
     .btn {
       border: none;
-      border-radius: 7px;
-      padding: 8px 13px;
+      border-radius: var(--radius-sm);
+      height: 38px;
+      padding: 0 12px;
       font-size: 12.5px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      transition: opacity 0.15s, transform 0.1s;
+      transition: all 0.15s;
     }
 
     .btn:active { transform: scale(0.98); }
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-outline { background: #fff; border: 1px solid #CBD5E1; color: #334155; }
+    .btn-primary { background: var(--primary-dark); color: #fff; }
+    .btn-primary:hover { background: var(--primary); }
+    .btn-outline { background: var(--surface); border: 1px solid var(--border-strong); color: var(--text-secondary); }
+    .btn-outline:hover { background: var(--surface-subtle); border-color: #94A3B8; }
     .btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #FECACA; }
-    .btn-sm { padding: 5px 9px; font-size: 11.5px; }
+    .btn-sm { height: 30px; padding: 0 9px; font-size: 11.5px; }
 
-    /* Legal Footer Box */
     .legal-box {
-      background: #F8FAFC;
+      background: var(--surface-subtle);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 9px 11px;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
       font-size: 11.5px;
-      color: #475569;
+      color: var(--text-muted);
     }
 
     .legal-box ul {
@@ -495,45 +663,47 @@
       margin-top: 4px;
     }
 
-    /* Segmented Toggle */
     .seg-control {
       display: grid;
       grid-template-columns: 1fr 1fr;
       background: #E2E8F0;
       padding: 3px;
-      border-radius: 8px;
-      margin-bottom: 12px;
+      border-radius: 9px;
+      margin-bottom: 14px;
     }
 
     .seg-btn {
       border: none;
       background: transparent;
-      padding: 7px 10px;
-      font-size: 12.5px;
+      padding: 8px 10px;
+      font-size: 12px;
       font-weight: 700;
-      border-radius: 6px;
+      border-radius: 7px;
       cursor: pointer;
-      color: #475569;
+      color: var(--text-muted);
+      transition: all 0.15s;
     }
 
     .seg-btn.active {
-      background: #fff;
-      color: var(--primary);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      background: var(--surface);
+      color: var(--primary-dark);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
     }
 
-    /* Creator Footer & Modal */
+    /* =========================================================================
+       FOOTER & CREATOR MODAL
+       ========================================================================= */
     .app-footer {
       text-align: center;
       font-size: 12px;
       color: var(--text-muted);
-      padding: 14px 10px 6px;
+      padding: 16px 10px 8px;
       border-top: 1px solid var(--border);
-      margin-top: 18px;
+      margin-top: 20px;
     }
 
     .app-footer a {
-      color: var(--primary);
+      color: var(--primary-dark);
       font-weight: 700;
       text-decoration: none;
       cursor: pointer;
@@ -547,35 +717,57 @@
       position: fixed;
       inset: 0;
       background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 16px;
-      z-index: 90;
+      z-index: 95;
     }
 
     .modal-box {
       background: var(--surface);
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       max-width: 430px;
       width: 100%;
-      padding: 18px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      border-top: 4px solid var(--primary);
+      padding: 20px;
+      box-shadow: var(--shadow-md);
+      border-top: 4px solid var(--primary-dark);
+    }
+
+    .creator-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .creator-header img {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
     }
 
     .creator-chip {
       display: inline-block;
-      background: var(--primary-light);
+      background: var(--primary-soft);
       color: var(--primary-dark);
-      font-size: 11px;
+      border: 1px solid var(--primary-border);
+      font-size: 10.5px;
       font-weight: 700;
-      padding: 3px 9px;
+      padding: 2px 8px;
       border-radius: 999px;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
 
-    /* Mobile Bottom Navigation */
+    /* =========================================================================
+       MOBILE LIVE THP BAR & BOTTOM NAVIGATION
+       ========================================================================= */
+    .mobile-live-bar {
+      display: none;
+    }
+
     .mobile-nav {
       display: none;
       position: fixed;
@@ -585,7 +777,7 @@
       background: var(--surface);
       border-top: 1px solid var(--border);
       z-index: 50;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+      box-shadow: 0 -2px 10px rgba(15, 23, 42, 0.05);
     }
 
     .mobile-nav-inner {
@@ -596,7 +788,7 @@
     .mob-tab {
       border: none;
       background: transparent;
-      padding: 8px 4px 7px;
+      padding: 9px 4px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -608,20 +800,22 @@
     }
 
     .mob-tab.active {
-      color: var(--primary);
+      color: var(--primary-dark);
+      font-weight: 700;
     }
 
     /* Toast */
     .toast {
       position: fixed;
-      bottom: 76px;
+      bottom: 124px;
       right: 16px;
-      background: #1E293B;
+      background: #0F172A;
       color: #fff;
-      padding: 9px 14px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 9px;
       font-size: 12.5px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+      font-weight: 500;
+      box-shadow: var(--shadow-md);
       z-index: 100;
       opacity: 0;
       pointer-events: none;
@@ -634,17 +828,72 @@
       overflow-x: auto;
     }
 
-    /* Print Area */
     #printArea {
       display: none;
     }
 
-    @media (max-width: 820px) {
+    /* =========================================================================
+       RESPONSIVE BREAKPOINTS
+       ========================================================================= */
+    @media (max-width: 860px) {
       .desktop-nav { display: none; }
       .mobile-nav { display: block; }
       .entity-bar, .grid-2 { grid-template-columns: 1fr; }
+
+      .mobile-live-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        position: fixed;
+        bottom: 56px;
+        left: 10px;
+        right: 10px;
+        background: #064E3B;
+        color: #fff;
+        padding: 9px 13px;
+        border-radius: 11px;
+        box-shadow: 0 6px 18px rgba(6, 78, 59, 0.28);
+        z-index: 48;
+        transition: opacity 0.2s, transform 0.2s;
+      }
+
+      .mobile-live-bar.hide-bar {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(10px);
+      }
+
+      .mlb-label {
+        font-size: 10.5px;
+        opacity: 0.85;
+      }
+
+      .mlb-val {
+        font-size: 15px;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .mlb-btn {
+        background: rgba(255,255,255,0.16);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.28);
+        border-radius: 7px;
+        padding: 6px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .title-desktop { display: none; }
+      .title-mobile { display: inline; }
       .form-grid { grid-template-columns: 1fr; }
-      .brand p { display: none; }
+      .btn-row { grid-template-columns: 1fr; }
+      .chip-status .status-label { display: none; }
     }
 
     @media print {
@@ -652,7 +901,7 @@
         background: #fff;
         padding: 0;
       }
-      .app-header, .desktop-nav, .mobile-nav, .container, .toast, .modal-backdrop {
+      .app-header, .desktop-nav, .mobile-nav, .mobile-live-bar, .container, .toast, .modal-backdrop {
         display: none !important;
       }
       #printArea {
@@ -662,7 +911,7 @@
         font-size: 11pt;
       }
       .print-header {
-        border-bottom: 2px solid #145C48;
+        border-bottom: 2px solid #064E3B;
         padding-bottom: 8px;
         margin-bottom: 14px;
         display: flex;
@@ -672,7 +921,7 @@
       .print-title {
         font-size: 15pt;
         font-weight: 700;
-        color: #145C48;
+        color: #064E3B;
       }
       .print-meta {
         width: 100%;
@@ -693,7 +942,7 @@
         padding: 6px 8px;
       }
       .print-table th {
-        background: #E8F3F0 !important;
+        background: #ECFDF5 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
@@ -709,33 +958,36 @@
 </head>
 <body>
 
-  <!-- HEADER -->
+  <!-- =================================================================== -->
+  <!-- HEADER (CLEAN LIGHT ENTERPRISE BAR)                                 -->
+  <!-- =================================================================== -->
   <header class="app-header">
     <div class="header-inner">
       <div class="brand">
         <div class="brand-icon" aria-hidden="true">
-          <!-- Menampilkan icon-192.png jika tersedia, otomatis fallback ke ikon SVG bawaan -->
-          <img src="icon-192.png" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-          <svg style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <img src="icon-192.png" alt="Logo SimKerja ID" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+          <svg style="display:none; color:#064E3B;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <rect x="3" y="3" width="18" height="18" rx="3"></rect>
             <path d="M7 8h10M7 12h6M7 16h8"></path>
           </svg>
         </div>
-        <div>
-          <h1>Simulator Ketenagakerjaan Indonesia</h1>
-          <p>Payroll • BPJS / Taspen • Pesangon PP 35/2021 • PKWT • PPh 21</p>
+        <div class="brand-text">
+          <h1 class="brand-title">
+            <span class="title-desktop">Simulator Ketenagakerjaan Indonesia</span>
+            <span class="title-mobile">SimKerja ID</span>
+          </h1>
+          <p class="brand-sub">Payroll • BPJS / Taspen • Pesangon PP 35/2021 • PPh 21</p>
         </div>
       </div>
 
-      <div class="header-badges">
-        <button type="button" id="btnInstallPwa" class="badge-pill badge-install" hidden onclick="installPwaApp()">
-          Install App
+      <div class="header-actions">
+        <button type="button" class="chip-creator" onclick="toggleCreatorModal(true)" title="Informasi Pengembang Aplikasi">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>Bang Dul</span>
         </button>
-        <button type="button" class="badge-pill badge-btn" onclick="toggleCreatorModal(true)">
-          Karya: Bang Dul
-        </button>
-        <span class="badge-pill" id="pwaStatusBadge">
-          <span class="dot-status" id="netDot"></span> <span id="netText">Offline Ready</span>
+        <span class="chip-status" id="pwaStatusBadge" title="Status Kesiapan Offline">
+          <span class="dot-status" id="netDot"></span>
+          <span id="netText">Offline</span>
         </span>
       </div>
     </div>
@@ -746,15 +998,15 @@
     <div class="desktop-nav-inner">
       <button class="nav-tab active" data-tab="payroll" onclick="switchTab('payroll')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        1. Payroll, BPJS &amp; PPh 21
+        Payroll, BPJS &amp; PPh 21
       </button>
       <button class="nav-tab" data-tab="severance" onclick="switchTab('severance')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        2. Pesangon &amp; Kompensasi PKWT
+        Pesangon &amp; Kompensasi PKWT
       </button>
       <button class="nav-tab" data-tab="history" onclick="switchTab('history')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        3. Riwayat &amp; Laporan (<span id="historyCountBadge">0</span>)
+        Riwayat &amp; Laporan (<span id="historyCountBadge">0</span>)
       </button>
     </div>
   </nav>
@@ -762,10 +1014,25 @@
   <!-- MAIN CONTAINER -->
   <main class="container">
 
+    <!-- DEDICATED PWA INSTALL BANNER (TIDAK PERNAH MENUMPUK HEADER) -->
+    <div class="install-banner" id="installBanner" hidden>
+      <div class="install-banner-info">
+        <img src="icon-192.png" alt="App Icon" onerror="this.style.display='none'" />
+        <div>
+          <div class="install-banner-title">Pasang SimKerja ID di Perangkat</div>
+          <div class="install-banner-desc">Buka lebih cepat &amp; hitung 100% offline tanpa kuota internet</div>
+        </div>
+      </div>
+      <div class="install-banner-btns">
+        <button type="button" class="btn-install-now" id="btnInstallPwa" onclick="installPwaApp()">Pasang</button>
+        <button type="button" class="btn-install-later" onclick="dismissInstallBanner()">Nanti</button>
+      </div>
+    </div>
+
     <!-- GLOBAL ENTITY PROFILE & EMPLOYEE IDENTITY BAR -->
     <section class="entity-bar">
       <div class="form-group">
-        <label for="globalEntityProfile">Profil Instansi / Pemberi Kerja (Otomatis Mengatur Rezim Hukum &amp; Tarif)</label>
+        <label for="globalEntityProfile">Profil Instansi / Pemberi Kerja</label>
         <select id="globalEntityProfile" onchange="handleEntityChange()">
           <optgroup label="Badan Usaha (Rezim UU Cipta Kerja &amp; PP 35/2021)">
             <option value="SWASTA_UMUM" selected>Perusahaan Swasta (Menengah / Besar)</option>
@@ -782,7 +1049,7 @@
       <div class="form-grid">
         <div class="form-group">
           <label for="empName">Nama Pegawai / Pekerja</label>
-          <input type="text" id="empName" placeholder="Contoh: Ahmad Fauzi" value="Karyawan Simulasi" oninput="recalculateAll()" />
+          <input type="text" id="empName" placeholder="Nama lengkap pegawai" value="Ahmad Fauzi" oninput="recalculateAll()" />
         </div>
         <div class="form-group">
           <label for="ptkpStatus">Status PTKP (PPh 21)</label>
@@ -809,29 +1076,43 @@
         <div>
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Komponen Upah &amp; Kepesertaan</div>
-              <span class="hint" id="payrollEntityTag">Badan Usaha</span>
+              <div class="card-title">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Komponen Upah &amp; Kepesertaan
+              </div>
+              <span class="pill-tag" id="payrollEntityTag">Swasta Umum</span>
             </div>
 
             <div class="form-grid">
               <div class="form-group">
-                <label for="payGajiPokok">Gaji Pokok (Rp)</label>
-                <input type="text" id="payGajiPokok" class="num-input currency-input" value="6.500.000" oninput="formatCurrencyInput(this); runPayroll()" />
+                <label for="payGajiPokok">Gaji Pokok</label>
+                <div class="currency-wrap">
+                  <span class="currency-prefix">Rp</span>
+                  <input type="text" id="payGajiPokok" class="currency-input" value="6.500.000" oninput="formatCurrencyInput(this); runPayroll()" />
+                </div>
               </div>
               <div class="form-group">
-                <label for="payTunjTetap">Tunjangan Tetap (Rp)</label>
-                <input type="text" id="payTunjTetap" class="num-input currency-input" value="1.500.000" oninput="formatCurrencyInput(this); runPayroll()" />
+                <label for="payTunjTetap">Tunjangan Tetap</label>
+                <div class="currency-wrap">
+                  <span class="currency-prefix">Rp</span>
+                  <input type="text" id="payTunjTetap" class="currency-input" value="1.500.000" oninput="formatCurrencyInput(this); runPayroll()" />
+                </div>
               </div>
               <div class="form-group">
-                <label for="payTunjTidakTetap">Tunjangan Tidak Tetap / Lembur / Jaspel (Rp)</label>
-                <input type="text" id="payTunjTidakTetap" class="num-input currency-input" value="500.000" oninput="formatCurrencyInput(this); runPayroll()" />
+                <label for="payTunjTidakTetap">Tunjangan Tidak Tetap / Lembur / Jaspel</label>
+                <div class="currency-wrap">
+                  <span class="currency-prefix">Rp</span>
+                  <input type="text" id="payTunjTidakTetap" class="currency-input" value="500.000" oninput="formatCurrencyInput(this); runPayroll()" />
+                </div>
               </div>
               <div class="form-group">
-                <label for="payPotonganLain">Potongan Internal Lainnya (Rp)</label>
-                <input type="text" id="payPotonganLain" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runPayroll()" />
+                <label for="payPotonganLain">Potongan Internal Lainnya</label>
+                <div class="currency-wrap">
+                  <span class="currency-prefix">Rp</span>
+                  <input type="text" id="payPotonganLain" class="currency-input" value="0" oninput="formatCurrencyInput(this); runPayroll()" />
+                </div>
               </div>
 
-              <!-- Pengaturan BPJS Kesehatan -->
               <div class="form-group">
                 <label for="bpjsKesExtraFamily">Tambahan Keluarga BPJS Kes (&gt;5 org)</label>
                 <select id="bpjsKesExtraFamily" onchange="runPayroll()">
@@ -842,7 +1123,6 @@
                 </select>
               </div>
 
-              <!-- Pengaturan JKK -->
               <div class="form-group" id="groupJkkRate">
                 <label for="jkkRiskRate">Tingkat Risiko JKK</label>
                 <select id="jkkRiskRate" onchange="runPayroll()">
@@ -857,7 +1137,7 @@
 
             <!-- Opsi Khusus Mikro/Kecil & Non-ASN BLUD -->
             <div class="sub-panel" id="payrollOptionalPrograms" hidden>
-              <div class="sub-panel-title">Penyesuaian Program Opsional Instansi</div>
+              <div class="sub-panel-title">Program Opsional Kepesertaan BPJS TK</div>
               <label class="check-row">
                 <input type="checkbox" id="optJhtActive" checked onchange="runPayroll()" />
                 <span>Ikut Program JHT BPJS Ketenagakerjaan (3,7% Pemberi Kerja + 2% Pekerja)</span>
@@ -884,10 +1164,13 @@
         </div>
 
         <!-- HASIL PAYROLL -->
-        <div>
+        <div id="payrollResultCard">
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Ringkasan Slip Gaji &amp; Iuran</div>
+              <div class="card-title">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Ringkasan Slip Gaji &amp; Iuran
+              </div>
               <span class="hint">Plafon Kes: Rp12 Jt | JP: Rp11,086 Jt</span>
             </div>
 
@@ -897,11 +1180,11 @@
                 <div class="kpi-value" id="payThpDisplay">Rp 0</div>
               </div>
               <div class="kpi-box">
-                <div class="kpi-label">Total Potongan Pekerja (BPJS + PPh 21)</div>
+                <div class="kpi-label">Total Potongan Pekerja</div>
                 <div class="kpi-value neg" id="payTotalDeductDisplay">Rp 0</div>
               </div>
               <div class="kpi-box">
-                <div class="kpi-label">Total Beban Iuran Pemberi Kerja</div>
+                <div class="kpi-label">Beban Iuran Pemberi Kerja</div>
                 <div class="kpi-value pos" id="payEmployerCostDisplay">Rp 0</div>
               </div>
             </div>
@@ -912,7 +1195,7 @@
               <thead>
                 <tr>
                   <th>Komponen Rincian</th>
-                  <th class="amt">Nominal (Rp)</th>
+                  <th class="amt">Nominal</th>
                 </tr>
               </thead>
               <tbody id="payrollResultBody"></tbody>
@@ -922,12 +1205,15 @@
 
             <div class="btn-row">
               <button class="btn btn-primary" onclick="saveCurrentSimulation('PAYROLL')">
-                Simpan ke Riwayat
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Simpan Riwayat
               </button>
               <button class="btn btn-outline" onclick="printReport('PAYROLL')">
-                Cetak / PDF A4
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Cetak PDF
               </button>
               <button class="btn btn-outline" onclick="exportExcel('PAYROLL')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Ekspor Excel
               </button>
             </div>
@@ -940,7 +1226,6 @@
     <!-- TAB 2: PESANGON (PKWTT) & KOMPENSASI PKWT                           -->
     <!-- =================================================================== -->
     <div id="view-severance" class="tab-view" hidden>
-      <!-- Banner Peringatan jika memilih ASN PNS/PPPK -->
       <div class="alert alert-warning" id="asnWarningBanner" hidden>
         <div>
           <strong>Pengecualian Rezim Hukum ASN:</strong>
@@ -953,27 +1238,33 @@
         <div>
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Parameter Hubungan Kerja &amp; Masa Kerja</div>
-              <span class="hint" id="sevSchemeTag">PP 35/2021</span>
+              <div class="card-title">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                Parameter Hubungan Kerja &amp; Masa Kerja
+              </div>
+              <span class="pill-tag" id="sevSchemeTag">Swasta Umum</span>
             </div>
 
             <div class="seg-control">
               <button type="button" class="seg-btn active" id="btnModePkwtt" onclick="setContractStatus('PKWTT')">
-                PKWTT (Pegawai Tetap — Pesangon)
+                PKWTT (Tetap — Pesangon)
               </button>
               <button type="button" class="seg-btn" id="btnModePkwt" onclick="setContractStatus('PKWT')">
-                PKWT (Kontrak — Uang Kompensasi)
+                PKWT (Kontrak — Kompensasi)
               </button>
             </div>
 
             <div class="form-grid">
               <div class="form-group">
                 <label for="sevUpahTetap">Upah Tetap Dasar Hitung (Pokok + Tunj. Tetap)</label>
-                <input type="text" id="sevUpahTetap" class="num-input currency-input" value="8.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                <div class="currency-wrap">
+                  <span class="currency-prefix">Rp</span>
+                  <input type="text" id="sevUpahTetap" class="currency-input" value="8.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                </div>
               </div>
               <div class="form-group">
                 <label>Masa Kerja</label>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                   <div>
                     <input type="number" id="sevYears" min="0" max="50" value="5" oninput="runSeverance()" />
                     <span class="hint">Tahun</span>
@@ -987,7 +1278,7 @@
             </div>
 
             <!-- FIELD KHUSUS PKWTT -->
-            <div id="pkwttFieldsGroup" style="margin-top:10px;">
+            <div id="pkwttFieldsGroup" style="margin-top:12px;">
               <div class="form-grid">
                 <div class="form-group full">
                   <label for="phkReasonKey">Alasan Pengakhiran Hubungan Kerja (PP No. 35 Tahun 2021)</label>
@@ -1005,18 +1296,24 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="sevOngkosPulang">Ongkos Pulang ke Tempat Penerimaan (Rp)</label>
-                  <input type="text" id="sevOngkosPulang" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  <label for="sevOngkosPulang">Ongkos Pulang ke Tempat Penerimaan</label>
+                  <div class="currency-wrap">
+                    <span class="currency-prefix">Rp</span>
+                    <input type="text" id="sevOngkosPulang" class="currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  </div>
                 </div>
                 <div class="form-group">
-                  <label for="sevHakLain">Hak Lainnya / Uang Pisah PKB (Rp)</label>
-                  <input type="text" id="sevHakLain" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  <label for="sevHakLain">Hak Lainnya / Uang Pisah PKB</label>
+                  <div class="currency-wrap">
+                    <span class="currency-prefix">Rp</span>
+                    <input type="text" id="sevHakLain" class="currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  </div>
                 </div>
               </div>
             </div>
 
             <!-- FIELD KHUSUS PKWT -->
-            <div id="pkwtFieldsGroup" style="margin-top:10px;" hidden>
+            <div id="pkwtFieldsGroup" style="margin-top:12px;" hidden>
               <div class="form-grid">
                 <div class="form-group full">
                   <label class="check-row">
@@ -1030,7 +1327,6 @@
                 </div>
               </div>
 
-              <!-- Pengaturan Pajak Kompensasi PKWT -->
               <div class="sub-panel">
                 <div class="sub-panel-title">Skema Pemotongan PPh 21 Kompensasi PKWT</div>
                 <div class="form-grid">
@@ -1042,26 +1338,35 @@
                     </select>
                   </div>
                   <div class="form-group">
-                    <label for="pkwtGajiBulanIni">Gaji Bruto Bulan Berjalan (Rp)</label>
-                    <input type="text" id="pkwtGajiBulanIni" class="num-input currency-input" value="8.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                    <label for="pkwtGajiBulanIni">Gaji Bruto Bulan Berjalan</label>
+                    <div class="currency-wrap">
+                      <span class="currency-prefix">Rp</span>
+                      <input type="text" id="pkwtGajiBulanIni" class="currency-input" value="8.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                    </div>
                   </div>
                   <div class="form-group" id="pkwtBulanKerjaGroup" hidden>
                     <label for="pkwtBulanKerjaThn">Jumlah Bulan Bekerja di Tahun Ini</label>
                     <input type="number" id="pkwtBulanKerjaThn" min="1" max="12" value="10" oninput="runSeverance()" />
                   </div>
                   <div class="form-group" id="pkwtAkumBrutoGroup" hidden>
-                    <label for="pkwtAkumBruto">Akumulasi Bruto Sebelum Bulan Ini (Rp)</label>
-                    <input type="text" id="pkwtAkumBruto" class="num-input currency-input" value="72.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                    <label for="pkwtAkumBruto">Akumulasi Bruto Sebelum Bulan Ini</label>
+                    <div class="currency-wrap">
+                      <span class="currency-prefix">Rp</span>
+                      <input type="text" id="pkwtAkumBruto" class="currency-input" value="72.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                    </div>
                   </div>
                   <div class="form-group" id="pkwtPphPrevGroup" hidden>
-                    <label for="pkwtPphPrev">PPh 21 Sudah Dipotong Sebelumnya (Rp)</label>
-                    <input type="text" id="pkwtPphPrev" class="num-input currency-input" value="1.080.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                    <label for="pkwtPphPrev">PPh 21 Sudah Dipotong Sebelumnya</label>
+                    <div class="currency-wrap">
+                      <span class="currency-prefix">Rp</span>
+                      <input type="text" id="pkwtPphPrev" class="currency-input" value="1.080.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- PANEL PENYESUAIAN INSTANSI: MIKRO/KECIL -->
+            <!-- PANEL MIKRO/KECIL -->
             <div class="sub-panel" id="panelMikroKecil" hidden>
               <div class="sub-panel-title">Kesepakatan Usaha Mikro / Kecil (Pasal 18 &amp; 59 PP 35/2021)</div>
               <div class="form-grid">
@@ -1070,33 +1375,39 @@
                   <input type="number" id="mikroPersen" min="0" max="200" value="50" oninput="runSeverance()" />
                 </div>
                 <div class="form-group">
-                  <label for="mikroNominal">Atau Nominal Kesepakatan Bulat (Rp)</label>
-                  <input type="text" id="mikroNominal" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  <label for="mikroNominal">Atau Nominal Kesepakatan Bulat</label>
+                  <div class="currency-wrap">
+                    <span class="currency-prefix">Rp</span>
+                    <input type="text" id="mikroNominal" class="currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  </div>
                   <span class="hint">Isi &gt; 0 jika disepakati angka bulat</span>
                 </div>
               </div>
             </div>
 
-            <!-- PANEL PENYESUAIAN INSTANSI: BUMN / BUMD -->
+            <!-- PANEL BUMN / BUMD -->
             <div class="sub-panel" id="panelBumnBumd" hidden>
               <div class="sub-panel-title">Penyesuaian PKB / Peraturan Direksi BUMN &amp; BUMD</div>
               <div class="form-grid">
                 <div class="form-group">
-                  <label for="bumnUpOverride">Override Pengali UP (Kosongkan = Standar PP 35)</label>
+                  <label for="bumnUpOverride">Override Pengali UP (Kosong = Standar)</label>
                   <input type="number" id="bumnUpOverride" step="0.25" min="0" max="5" placeholder="Contoh: 2.0" oninput="runSeverance()" />
                 </div>
                 <div class="form-group">
-                  <label for="bumnUpmkOverride">Override Pengali UPMK (Kosongkan = Standar)</label>
+                  <label for="bumnUpmkOverride">Override Pengali UPMK (Kosong = Standar)</label>
                   <input type="number" id="bumnUpmkOverride" step="0.25" min="0" max="5" placeholder="Contoh: 1.5" oninput="runSeverance()" />
                 </div>
                 <div class="form-group full">
-                  <label for="bumnTaliAsih">Penghargaan Purna Bakti / Tali Asih Khusus (Rp)</label>
-                  <input type="text" id="bumnTaliAsih" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  <label for="bumnTaliAsih">Penghargaan Purna Bakti / Tali Asih Khusus</label>
+                  <div class="currency-wrap">
+                    <span class="currency-prefix">Rp</span>
+                    <input type="text" id="bumnTaliAsih" class="currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- PANEL PENYESUAIAN INSTANSI: NON-ASN BLUD -->
+            <!-- PANEL NON-ASN BLUD -->
             <div class="sub-panel" id="panelBludPerkada" hidden>
               <div class="sub-panel-title">Aturan Kepala Daerah (Perkada) Pegawai Non-ASN BLUD</div>
               <div class="form-grid">
@@ -1118,13 +1429,15 @@
                 </div>
                 <div class="form-group full">
                   <label for="bludNominalTetap">Nominal Tetap (Jika memilih skema Nominal Tetap)</label>
-                  <input type="text" id="bludNominalTetap" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  <div class="currency-wrap">
+                    <span class="currency-prefix">Rp</span>
+                    <input type="text" id="bludNominalTetap" class="currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- NIK/NPWP Valid -->
-            <div style="margin-top:8px;">
+            <div style="margin-top:10px;">
               <label class="check-row">
                 <input type="checkbox" id="hasValidNikNpwp" checked onchange="runSeverance()" />
                 <span>Pekerja memiliki NIK/NPWP tervalidasi (Tarif normal PPh 21 Final Pesangon)</span>
@@ -1134,11 +1447,14 @@
         </div>
 
         <!-- HASIL PESANGON / PKWT -->
-        <div>
+        <div id="severanceResultCard">
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Rincian Hak &amp; PPh 21</div>
-              <span class="hint" id="sevTaxSchemeBadge">PPh 21 Final PP 68/2009</span>
+              <div class="card-title">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Rincian Hak &amp; PPh 21
+              </div>
+              <span class="pill-tag" id="sevTaxSchemeBadge">PPh 21 Final PP 68/2009</span>
             </div>
 
             <div class="kpi-grid">
@@ -1162,7 +1478,7 @@
               <thead>
                 <tr>
                   <th>Uraian Komponen</th>
-                  <th class="amt">Nominal (Rp)</th>
+                  <th class="amt">Nominal</th>
                 </tr>
               </thead>
               <tbody id="severanceResultBody"></tbody>
@@ -1172,12 +1488,15 @@
 
             <div class="btn-row">
               <button class="btn btn-primary" onclick="saveCurrentSimulation('SEVERANCE')">
-                Simpan ke Riwayat
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Simpan Riwayat
               </button>
               <button class="btn btn-outline" onclick="printReport('SEVERANCE')">
-                Cetak / PDF A4
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Cetak PDF
               </button>
               <button class="btn btn-outline" onclick="exportExcel('SEVERANCE')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Ekspor Excel
               </button>
             </div>
@@ -1192,7 +1511,10 @@
     <div id="view-history" class="tab-view" hidden>
       <div class="card">
         <div class="card-header">
-          <div class="card-title">Arsip Riwayat Simulasi (Penyimpanan Lokal Offline)</div>
+          <div class="card-title">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Arsip Riwayat Simulasi (Lokal Offline)
+          </div>
           <button class="btn btn-danger btn-sm" onclick="clearAllHistory()">Hapus Semua</button>
         </div>
 
@@ -1234,6 +1556,15 @@
     </footer>
   </main>
 
+  <!-- MOBILE FLOATING LIVE THP BAR -->
+  <div class="mobile-live-bar" id="mobileLiveBar">
+    <div>
+      <div class="mlb-label" id="mobileLiveLabel">Estimasi Take Home Pay</div>
+      <div class="mlb-val" id="mobileLiveAmount">Rp 0</div>
+    </div>
+    <button type="button" class="mlb-btn" onclick="scrollToResultCard()">Lihat Rincian &darr;</button>
+  </div>
+
   <!-- MOBILE BOTTOM NAVIGATION -->
   <nav class="mobile-nav">
     <div class="mobile-nav-inner">
@@ -1255,22 +1586,33 @@
   <!-- CREATOR ATTRIBUTION MODAL -->
   <div class="modal-backdrop" id="creatorModal" hidden onclick="if(event.target===this) toggleCreatorModal(false)">
     <div class="modal-box">
-      <span class="creator-chip">INFORMASI PENGEMBANG APLIKASI</span>
-      <h3 style="font-size:16px; color:var(--primary-dark); margin-bottom:4px;">Simulator Ketenagakerjaan Indonesia</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Versi 2.0 (Offline-First PWA)</p>
-
-      <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:8px; padding:11px; font-size:12.5px; margin-bottom:12px;">
-        <p><strong>Dirancang &amp; Dikembangkan oleh:</strong><br>Dul Muid (Bang Dul)</p>
-        <p style="margin-top:6px;"><strong>Domisili:</strong> Brebes, Jawa Tengah</p>
-        <p style="margin-top:6px;"><strong>Cakupan Sistem:</strong> Perhitungan Payroll, BPJS Kesehatan &amp; Ketenagakerjaan, PT Taspen, Pesangon PP 35/2021, Kompensasi PKWT, serta PPh 21 TER &amp; Final.</p>
+      <div class="creator-header">
+        <img src="icon-192.png" alt="Logo SimKerja ID" onerror="this.style.display='none'" />
+        <div>
+          <span class="creator-chip">INFORMASI PENGEMBANG</span>
+          <h3 style="font-size:16px; color:var(--text); font-weight:800;">Simulator Ketenagakerjaan Indonesia</h3>
+          <p style="font-size:11.5px; color:var(--text-muted);">Versi 2.1 • Offline-First PWA</p>
+        </div>
       </div>
 
-      <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">
+      <div style="background:var(--surface-subtle); border:1px solid var(--border); border-radius:10px; padding:12px; font-size:12.5px; margin-bottom:12px;">
+        <p><strong>Dirancang &amp; Dikembangkan oleh:</strong><br>Dul Muid (Bang Dul)</p>
+        <p style="margin-top:7px;"><strong>Domisili:</strong> Brebes, Jawa Tengah</p>
+        <p style="margin-top:7px;"><strong>Cakupan Sistem:</strong> Perhitungan Payroll, BPJS Kesehatan &amp; Ketenagakerjaan, PT Taspen, Pesangon PP 35/2021, Kompensasi PKWT, serta PPh 21 TER &amp; Final.</p>
+      </div>
+
+      <div id="modalInstallRow" hidden style="margin-bottom:12px;">
+        <button type="button" class="btn btn-primary" style="width:100%;" onclick="installPwaApp(); toggleCreatorModal(false);">
+          Pasang Aplikasi ke Layar Utama (PWA)
+        </button>
+      </div>
+
+      <p style="font-size:11px; color:var(--text-muted); margin-bottom:14px;">
         *Hasil simulasi mengacu pada regulasi ketenagakerjaan dan perpajakan nasional yang berlaku sebagai alat bantu hitung administratif.
       </p>
 
       <div style="text-align:right;">
-        <button type="button" class="btn btn-primary" onclick="toggleCreatorModal(false)">Tutup</button>
+        <button type="button" class="btn btn-outline" onclick="toggleCreatorModal(false)">Tutup</button>
       </div>
     </div>
   </div>
@@ -1283,11 +1625,11 @@
 
   <script>
     /* =========================================================================
-       1. LEGAL RULES ENGINE (Aturan Hukum & Konfigurasi Profil Instansi)
+       1. LEGAL RULES ENGINE
        ========================================================================= */
     const BPJS_CAPS_2026 = {
-      KESEHATAN_MAX_UPAH: 12000000, // Perpres 64/2020
-      TK_JP_MAX_UPAH: 11086300,     // Penyesuaian Plafon JP Maret 2026
+      KESEHATAN_MAX_UPAH: 12000000,
+      TK_JP_MAX_UPAH: 11086300,
     };
 
     const ENTITY_PROFILES = {
@@ -1505,7 +1847,7 @@
     }
 
     /* =========================================================================
-       3. CALCULATION ENGINES (PAYROLL, BPJS/TASPEN, PESANGON, PKWT & PPH 21)
+       3. CALCULATION ENGINES
        ========================================================================= */
     function getTerRate(ptkpStatus, monthlyGross) {
       const map = PTKP_PROFILES[ptkpStatus] || PTKP_PROFILES["TK/0"];
@@ -1517,6 +1859,36 @@
     let latestPayrollData = null;
     let latestSeveranceData = null;
     let contractStatus = "PKWTT";
+    let activeTabName = "payroll";
+
+    function updateMobileLiveBar() {
+      const bar = document.getElementById("mobileLiveBar");
+      if (!bar) return;
+      if (activeTabName === "history") {
+        bar.classList.add("hide-bar");
+        return;
+      }
+      if (activeTabName === "payroll" && latestPayrollData) {
+        bar.classList.remove("hide-bar");
+        document.getElementById("mobileLiveLabel").textContent = "Estimasi Take Home Pay Bulanan";
+        document.getElementById("mobileLiveAmount").textContent = formatRp(latestPayrollData.thp);
+      } else if (activeTabName === "severance") {
+        if (!latestSeveranceData) {
+          bar.classList.add("hide-bar");
+        } else {
+          bar.classList.remove("hide-bar");
+          document.getElementById("mobileLiveLabel").textContent =
+            contractStatus === "PKWT" ? "Estimasi Kompensasi Bersih" : "Estimasi Pesangon Bersih";
+          document.getElementById("mobileLiveAmount").textContent = formatRp(latestSeveranceData.thp);
+        }
+      }
+    }
+
+    function scrollToResultCard() {
+      const targetId = activeTabName === "payroll" ? "payrollResultCard" : "severanceResultCard";
+      const el = document.getElementById(targetId);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
     function runPayroll() {
       const profileKey = document.getElementById("globalEntityProfile").value;
@@ -1537,12 +1909,10 @@
       const includePremi = document.getElementById("includePremiInBruto").checked;
       const asnTaxDtp = document.getElementById("asnTaxBorneByGov").checked;
 
-      // 1. BPJS Kesehatan (PPU: 4% Pemberi Kerja, 1% Pekerja + 1% per keluarga tambahan)
       const dasarKes = Math.min(upahTetap, BPJS_CAPS_2026.KESEHATAN_MAX_UPAH);
       const kesEmployer = Math.round(dasarKes * 0.04);
       const kesWorker = Math.round(dasarKes * (0.01 + extraFamily * 0.01));
 
-      // 2. BPJS Ketenagakerjaan / PT Taspen
       let jkkEmployer = 0, jkmEmployer = 0, jhtEmployer = 0, jhtWorker = 0;
       let jpEmployer = 0, jpWorker = 0, taspenTht = 0, taspenPensiun = 0;
       let jkpActive = profile.bpjsTk.jkp;
@@ -1570,7 +1940,6 @@
         }
       }
 
-      // 3. PPh 21 Bulanan TER (PP No. 58 Tahun 2023)
       const premiPenambahBruto = includePremi ? (kesEmployer + jkkEmployer + jkmEmployer) : 0;
       const brutoPph21 = upahBrutoTunai + premiPenambahBruto;
       const terInfo = getTerRate(ptkpStatus, brutoPph21);
@@ -1645,6 +2014,8 @@
         rows,
         legalBasis: profile.legalBasis
       };
+
+      updateMobileLiveBar();
     }
 
     function getBaseUpMonths(fullYears) {
@@ -1685,6 +2056,7 @@
 
       if (!profile.severanceEligible) {
         latestSeveranceData = null;
+        updateMobileLiveBar();
         return;
       }
 
@@ -1882,6 +2254,8 @@
         rows,
         legalBasis: profile.legalBasis
       };
+
+      updateMobileLiveBar();
     }
 
     function renderAccTable(tbodyId, rows) {
@@ -1895,7 +2269,7 @@
     }
 
     /* =========================================================================
-       4. UI CONTROLLERS & SYNCHRONIZATION
+       4. UI CONTROLLERS
        ========================================================================= */
     function handleEntityChange() {
       const key = document.getElementById("globalEntityProfile").value;
@@ -1947,6 +2321,7 @@
     }
 
     function switchTab(tabName) {
+      activeTabName = tabName;
       document.querySelectorAll(".tab-view").forEach(v => v.hidden = true);
       document.getElementById("view-" + tabName).hidden = false;
 
@@ -1955,6 +2330,8 @@
       });
 
       if (tabName === "history") renderHistoryTable();
+      updateMobileLiveBar();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function recalculateAll() {
@@ -1963,7 +2340,7 @@
     }
 
     /* =========================================================================
-       5. OFFLINE STORAGE ENGINE (IndexedDB + LocalStorage Fallback)
+       5. OFFLINE STORAGE ENGINE (INDEXEDDB + LOCALSTORAGE FALLBACK)
        ========================================================================= */
     const DB_NAME = "SimulatorKetenagakerjaanID_DB";
     const STORE_NAME = "simulations";
@@ -2106,7 +2483,7 @@
     }
 
     /* =========================================================================
-       6. EXPORT ENGINE (PRINT / PDF A4 & EXCEL .XLSX / .XLS + WATERMARK)
+       6. EXPORT ENGINE (PRINT / PDF A4 & EXCEL + WATERMARK)
        ========================================================================= */
     function buildPrintHtml(data) {
       const title = data.type === "PAYROLL"
@@ -2236,15 +2613,21 @@
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferredInstallPrompt = e;
-      document.getElementById("btnInstallPwa").hidden = false;
+      document.getElementById("installBanner").hidden = false;
+      document.getElementById("modalInstallRow").hidden = false;
     });
+
+    function dismissInstallBanner() {
+      document.getElementById("installBanner").hidden = true;
+    }
 
     async function installPwaApp() {
       if (!deferredInstallPrompt) return;
       deferredInstallPrompt.prompt();
       const { outcome } = await deferredInstallPrompt.userChoice;
       if (outcome === "accepted") {
-        document.getElementById("btnInstallPwa").hidden = true;
+        document.getElementById("installBanner").hidden = true;
+        document.getElementById("modalInstallRow").hidden = true;
         showToast("Aplikasi sedang diinstal ke perangkat...");
       }
       deferredInstallPrompt = null;

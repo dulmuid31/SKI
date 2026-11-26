@@ -1,0 +1,2293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#145C48" />
+  <meta name="author" content="Dul Muid (Bang Dul)" />
+  <meta name="description" content="Simulator Ketenagakerjaan Indonesia — Payroll, BPJS, PT Taspen, Pesangon PP 35/2021, Kompensasi PKWT & PPh 21. Karya Dul Muid (Bang Dul)." />
+
+  <!-- Ikon & Manifest PWA (Gunakan file icon-192.png & icon-512.png milik Anda) -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+
+  <title>Simulator Ketenagakerjaan Indonesia — by Bang Dul</title>
+
+  <!-- SheetJS opsional untuk ekspor .xlsx native (otomatis fallback ke .xls offline saat tanpa internet) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+
+  <style>
+    :root {
+      --primary: #145C48;
+      --primary-dark: #0E4234;
+      --primary-light: #E8F3F0;
+      --accent: #0F766E;
+      --bg: #F3F6F5;
+      --surface: #FFFFFF;
+      --text: #1E293B;
+      --text-muted: #64748B;
+      --border: #DCE4E2;
+      --danger: #B91C1C;
+      --danger-bg: #FEF2F2;
+      --warning: #B45309;
+      --warning-bg: #FFFBEB;
+      --info: #1D4ED8;
+      --info-bg: #EFF6FF;
+      --radius: 10px;
+      --shadow: 0 2px 8px rgba(20, 92, 72, 0.07);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.45;
+      padding-bottom: 76px;
+    }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #fff;
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    }
+
+    .header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.16);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .brand-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .brand h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand p {
+      font-size: 11px;
+      opacity: 0.85;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .badge-pill {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      border: none;
+    }
+
+    .badge-btn {
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+
+    .badge-btn:hover {
+      background: rgba(255,255,255,0.26);
+    }
+
+    .badge-install {
+      background: #FACC15;
+      color: #1E293B;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .dot-status {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #4ADE80;
+    }
+
+    .dot-status.offline {
+      background: #FBBF24;
+    }
+
+    /* Desktop Top Nav */
+    .desktop-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+    }
+
+    .desktop-nav-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-tab {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 11px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-bottom: 2.5px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .nav-tab:hover {
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .nav-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1180px;
+      margin: 14px auto;
+      padding: 0 12px;
+    }
+
+    /* Global Entity Selector Bar */
+    .entity-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 9px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    /* Form Controls */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #CBD5E1;
+      border-radius: 7px;
+      font-size: 13px;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2.5px rgba(20, 92, 72, 0.12);
+    }
+
+    .num-input {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      cursor: pointer;
+      font-size: 12.5px;
+    }
+
+    .check-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+    }
+
+    /* Sub-panels */
+    .sub-panel {
+      background: #F8FAFC;
+      border: 1px dashed #CBD5E1;
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 8px;
+    }
+
+    .sub-panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    /* Alerts & Banners */
+    .alert {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+    }
+
+    .alert-warning {
+      background: var(--warning-bg);
+      border: 1px solid #FDE68A;
+      color: #92400E;
+    }
+
+    /* KPI Summary Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      margin-bottom: 12px;
+    }
+
+    .kpi-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .kpi-box.highlight {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #fff;
+      border-color: var(--primary);
+      grid-column: 1 / -1;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      opacity: 0.85;
+      margin-bottom: 2px;
+    }
+
+    .kpi-value {
+      font-size: 16px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .kpi-box.highlight .kpi-value {
+      font-size: 20px;
+    }
+
+    .terbilang-box {
+      background: var(--primary-light);
+      border-left: 3px solid var(--primary);
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-style: italic;
+      color: var(--primary-dark);
+      margin-bottom: 12px;
+    }
+
+    /* Accounting Tables */
+    .acc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin-bottom: 10px;
+    }
+
+    .acc-table th, .acc-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #EDF2F7;
+    }
+
+    .acc-table th {
+      background: #F8FAFC;
+      text-align: left;
+      font-weight: 700;
+      color: #475569;
+      font-size: 11.5px;
+    }
+
+    .acc-table td.amt, .acc-table th.amt {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .acc-table tr.sec-head td {
+      background: #F1F5F9;
+      font-weight: 700;
+      color: var(--primary-dark);
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .acc-table tr.total-row td {
+      font-weight: 700;
+      background: #F8FAFC;
+      border-top: 1.5px solid #CBD5E1;
+      border-bottom: 2px solid #94A3B8;
+    }
+
+    .neg { color: var(--danger); }
+    .pos { color: var(--primary); }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 7px;
+      padding: 8px 13px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-outline { background: #fff; border: 1px solid #CBD5E1; color: #334155; }
+    .btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #FECACA; }
+    .btn-sm { padding: 5px 9px; font-size: 11.5px; }
+
+    /* Legal Footer Box */
+    .legal-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 11px;
+      font-size: 11.5px;
+      color: #475569;
+    }
+
+    .legal-box ul {
+      margin-left: 16px;
+      margin-top: 4px;
+    }
+
+    /* Segmented Toggle */
+    .seg-control {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #E2E8F0;
+      padding: 3px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .seg-btn {
+      border: none;
+      background: transparent;
+      padding: 7px 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #475569;
+    }
+
+    .seg-btn.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Creator Footer & Modal */
+    .app-footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 14px 10px 6px;
+      border-top: 1px solid var(--border);
+      margin-top: 18px;
+    }
+
+    .app-footer a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .modal-backdrop[hidden] {
+      display: none !important;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 90;
+    }
+
+    .modal-box {
+      background: var(--surface);
+      border-radius: 12px;
+      max-width: 430px;
+      width: 100%;
+      padding: 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      border-top: 4px solid var(--primary);
+    }
+
+    .creator-chip {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+
+    /* Mobile Bottom Navigation */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      z-index: 50;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+    }
+
+    .mobile-nav-inner {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .mob-tab {
+      border: none;
+      background: transparent;
+      padding: 8px 4px 7px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .mob-tab.active {
+      color: var(--primary);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 76px;
+      right: 16px;
+      background: #1E293B;
+      color: #fff;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .toast.show { opacity: 1; }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    /* Print Area */
+    #printArea {
+      display: none;
+    }
+
+    @media (max-width: 820px) {
+      .desktop-nav { display: none; }
+      .mobile-nav { display: block; }
+      .entity-bar, .grid-2 { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .brand p { display: none; }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+      .app-header, .desktop-nav, .mobile-nav, .container, .toast, .modal-backdrop {
+        display: none !important;
+      }
+      #printArea {
+        display: block !important;
+        padding: 12mm;
+        color: #000;
+        font-size: 11pt;
+      }
+      .print-header {
+        border-bottom: 2px solid #145C48;
+        padding-bottom: 8px;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      .print-title {
+        font-size: 15pt;
+        font-weight: 700;
+        color: #145C48;
+      }
+      .print-meta {
+        width: 100%;
+        margin-bottom: 12px;
+        font-size: 10pt;
+      }
+      .print-meta td {
+        padding: 2px 4px;
+      }
+      .print-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 12px;
+        font-size: 10pt;
+      }
+      .print-table th, .print-table td {
+        border: 1px solid #94A3B8;
+        padding: 6px 8px;
+      }
+      .print-table th {
+        background: #E8F3F0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .print-sign {
+        margin-top: 26px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        text-align: center;
+        font-size: 10pt;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <!-- Menampilkan icon-192.png jika tersedia, otomatis fallback ke ikon SVG bawaan -->
+          <img src="icon-192.png" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+          <svg style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+            <path d="M7 8h10M7 12h6M7 16h8"></path>
+          </svg>
+        </div>
+        <div>
+          <h1>Simulator Ketenagakerjaan Indonesia</h1>
+          <p>Payroll • BPJS / Taspen • Pesangon PP 35/2021 • PKWT • PPh 21</p>
+        </div>
+      </div>
+
+      <div class="header-badges">
+        <button type="button" id="btnInstallPwa" class="badge-pill badge-install" hidden onclick="installPwaApp()">
+          Install App
+        </button>
+        <button type="button" class="badge-pill badge-btn" onclick="toggleCreatorModal(true)">
+          Karya: Bang Dul
+        </button>
+        <span class="badge-pill" id="pwaStatusBadge">
+          <span class="dot-status" id="netDot"></span> <span id="netText">Offline Ready</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- DESKTOP NAVIGATION -->
+  <nav class="desktop-nav">
+    <div class="desktop-nav-inner">
+      <button class="nav-tab active" data-tab="payroll" onclick="switchTab('payroll')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        1. Payroll, BPJS &amp; PPh 21
+      </button>
+      <button class="nav-tab" data-tab="severance" onclick="switchTab('severance')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        2. Pesangon &amp; Kompensasi PKWT
+      </button>
+      <button class="nav-tab" data-tab="history" onclick="switchTab('history')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        3. Riwayat &amp; Laporan (<span id="historyCountBadge">0</span>)
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container">
+
+    <!-- GLOBAL ENTITY PROFILE & EMPLOYEE IDENTITY BAR -->
+    <section class="entity-bar">
+      <div class="form-group">
+        <label for="globalEntityProfile">Profil Instansi / Pemberi Kerja (Otomatis Mengatur Rezim Hukum &amp; Tarif)</label>
+        <select id="globalEntityProfile" onchange="handleEntityChange()">
+          <optgroup label="Badan Usaha (Rezim UU Cipta Kerja &amp; PP 35/2021)">
+            <option value="SWASTA_UMUM" selected>Perusahaan Swasta (Menengah / Besar)</option>
+            <option value="SWASTA_MIKRO_KECIL">Perusahaan Swasta (Mikro / Kecil)</option>
+            <option value="BUMN_BUMD">BUMN / BUMD (Perumda &amp; Perseroda)</option>
+          </optgroup>
+          <optgroup label="Instansi Negeri / Pemerintah Daerah">
+            <option value="ASN_PNS">Instansi Pemerintah / Pemda (PNS — Skema PT Taspen)</option>
+            <option value="ASN_PPPK">Instansi Pemerintah / Pemda (PPPK)</option>
+            <option value="NON_ASN_BLUD">Pegawai Non-ASN / Kontrak BLUD (RSUD / Dinas)</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="empName">Nama Pegawai / Pekerja</label>
+          <input type="text" id="empName" placeholder="Contoh: Ahmad Fauzi" value="Karyawan Simulasi" oninput="recalculateAll()" />
+        </div>
+        <div class="form-group">
+          <label for="ptkpStatus">Status PTKP (PPh 21)</label>
+          <select id="ptkpStatus" onchange="recalculateAll()">
+            <option value="TK/0" selected>TK/0 — Tidak Kawin, 0 Tanggungan (TER A)</option>
+            <option value="TK/1">TK/1 — Tidak Kawin, 1 Tanggungan (TER A)</option>
+            <option value="K/0">K/0 — Kawin, 0 Tanggungan (TER A)</option>
+            <option value="TK/2">TK/2 — Tidak Kawin, 2 Tanggungan (TER B)</option>
+            <option value="K/1">K/1 — Kawin, 1 Tanggungan (TER B)</option>
+            <option value="TK/3">TK/3 — Tidak Kawin, 3 Tanggungan (TER B)</option>
+            <option value="K/2">K/2 — Kawin, 2 Tanggungan (TER B)</option>
+            <option value="K/3">K/3 — Kawin, 3 Tanggungan (TER C)</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: PAYROLL, BPJS KESEHATAN, BPJS TK / TASPEN & PPH 21           -->
+    <!-- =================================================================== -->
+    <div id="view-payroll" class="tab-view">
+      <div class="grid-2">
+        <!-- INPUT PAYROLL -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Komponen Upah &amp; Kepesertaan</div>
+              <span class="hint" id="payrollEntityTag">Badan Usaha</span>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="payGajiPokok">Gaji Pokok (Rp)</label>
+                <input type="text" id="payGajiPokok" class="num-input currency-input" value="6.500.000" oninput="formatCurrencyInput(this); runPayroll()" />
+              </div>
+              <div class="form-group">
+                <label for="payTunjTetap">Tunjangan Tetap (Rp)</label>
+                <input type="text" id="payTunjTetap" class="num-input currency-input" value="1.500.000" oninput="formatCurrencyInput(this); runPayroll()" />
+              </div>
+              <div class="form-group">
+                <label for="payTunjTidakTetap">Tunjangan Tidak Tetap / Lembur / Jaspel (Rp)</label>
+                <input type="text" id="payTunjTidakTetap" class="num-input currency-input" value="500.000" oninput="formatCurrencyInput(this); runPayroll()" />
+              </div>
+              <div class="form-group">
+                <label for="payPotonganLain">Potongan Internal Lainnya (Rp)</label>
+                <input type="text" id="payPotonganLain" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runPayroll()" />
+              </div>
+
+              <!-- Pengaturan BPJS Kesehatan -->
+              <div class="form-group">
+                <label for="bpjsKesExtraFamily">Tambahan Keluarga BPJS Kes (&gt;5 org)</label>
+                <select id="bpjsKesExtraFamily" onchange="runPayroll()">
+                  <option value="0" selected>0 Orang (Ditanggung PPU 5%)</option>
+                  <option value="1">1 Orang (+1% Pekerja)</option>
+                  <option value="2">2 Orang (+2% Pekerja)</option>
+                  <option value="3">3 Orang (+3% Pekerja)</option>
+                </select>
+              </div>
+
+              <!-- Pengaturan JKK -->
+              <div class="form-group" id="groupJkkRate">
+                <label for="jkkRiskRate">Tingkat Risiko JKK</label>
+                <select id="jkkRiskRate" onchange="runPayroll()">
+                  <option value="0.0024" selected>Kelompok I — Sangat Rendah (0,24%)</option>
+                  <option value="0.0054">Kelompok II — Rendah (0,54%)</option>
+                  <option value="0.0089">Kelompok III — Sedang (0,89%)</option>
+                  <option value="0.0127">Kelompok IV — Tinggi (1,27%)</option>
+                  <option value="0.0174">Kelompok V — Sangat Tinggi (1,74%)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Opsi Khusus Mikro/Kecil & Non-ASN BLUD -->
+            <div class="sub-panel" id="payrollOptionalPrograms" hidden>
+              <div class="sub-panel-title">Penyesuaian Program Opsional Instansi</div>
+              <label class="check-row">
+                <input type="checkbox" id="optJhtActive" checked onchange="runPayroll()" />
+                <span>Ikut Program JHT BPJS Ketenagakerjaan (3,7% Pemberi Kerja + 2% Pekerja)</span>
+              </label>
+              <label class="check-row">
+                <input type="checkbox" id="optJpActive" onchange="runPayroll()" />
+                <span>Ikut Program Jaminan Pensiun / JP (2% Pemberi Kerja + 1% Pekerja)</span>
+              </label>
+            </div>
+
+            <!-- Opsi Pajak -->
+            <div class="sub-panel">
+              <div class="sub-panel-title">Pengaturan PPh 21 Bulanan (PP No. 58 Tahun 2023)</div>
+              <label class="check-row">
+                <input type="checkbox" id="includePremiInBruto" checked onchange="runPayroll()" />
+                <span>Tambahkan premi JKK, JKM &amp; BPJS Kes (4%) ke Bruto PPh 21 (PMK 168/2023)</span>
+              </label>
+              <label class="check-row" id="rowAsnTaxDtp" hidden>
+                <input type="checkbox" id="asnTaxBorneByGov" checked onchange="runPayroll()" />
+                <span>PPh 21 Gaji ASN Ditanggung Pemerintah (DTP — tidak memotong THP)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- HASIL PAYROLL -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Ringkasan Slip Gaji &amp; Iuran</div>
+              <span class="hint">Plafon Kes: Rp12 Jt | JP: Rp11,086 Jt</span>
+            </div>
+
+            <div class="kpi-grid">
+              <div class="kpi-box highlight">
+                <div class="kpi-label">Take Home Pay (THP) Diterima Pekerja</div>
+                <div class="kpi-value" id="payThpDisplay">Rp 0</div>
+              </div>
+              <div class="kpi-box">
+                <div class="kpi-label">Total Potongan Pekerja (BPJS + PPh 21)</div>
+                <div class="kpi-value neg" id="payTotalDeductDisplay">Rp 0</div>
+              </div>
+              <div class="kpi-box">
+                <div class="kpi-label">Total Beban Iuran Pemberi Kerja</div>
+                <div class="kpi-value pos" id="payEmployerCostDisplay">Rp 0</div>
+              </div>
+            </div>
+
+            <div class="terbilang-box" id="payTerbilang">Nol Rupiah</div>
+
+            <table class="acc-table">
+              <thead>
+                <tr>
+                  <th>Komponen Rincian</th>
+                  <th class="amt">Nominal (Rp)</th>
+                </tr>
+              </thead>
+              <tbody id="payrollResultBody"></tbody>
+            </table>
+
+            <div class="legal-box" id="payrollLegalBox"></div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="saveCurrentSimulation('PAYROLL')">
+                Simpan ke Riwayat
+              </button>
+              <button class="btn btn-outline" onclick="printReport('PAYROLL')">
+                Cetak / PDF A4
+              </button>
+              <button class="btn btn-outline" onclick="exportExcel('PAYROLL')">
+                Ekspor Excel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: PESANGON (PKWTT) & KOMPENSASI PKWT                           -->
+    <!-- =================================================================== -->
+    <div id="view-severance" class="tab-view" hidden>
+      <!-- Banner Peringatan jika memilih ASN PNS/PPPK -->
+      <div class="alert alert-warning" id="asnWarningBanner" hidden>
+        <div>
+          <strong>Pengecualian Rezim Hukum ASN:</strong>
+          <p id="asnWarningText" style="margin-top:3px;"></p>
+        </div>
+      </div>
+
+      <div class="grid-2" id="severanceMainGrid">
+        <!-- INPUT PESANGON / PKWT -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Parameter Hubungan Kerja &amp; Masa Kerja</div>
+              <span class="hint" id="sevSchemeTag">PP 35/2021</span>
+            </div>
+
+            <div class="seg-control">
+              <button type="button" class="seg-btn active" id="btnModePkwtt" onclick="setContractStatus('PKWTT')">
+                PKWTT (Pegawai Tetap — Pesangon)
+              </button>
+              <button type="button" class="seg-btn" id="btnModePkwt" onclick="setContractStatus('PKWT')">
+                PKWT (Kontrak — Uang Kompensasi)
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="sevUpahTetap">Upah Tetap Dasar Hitung (Pokok + Tunj. Tetap)</label>
+                <input type="text" id="sevUpahTetap" class="num-input currency-input" value="8.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
+              </div>
+              <div class="form-group">
+                <label>Masa Kerja</label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                  <div>
+                    <input type="number" id="sevYears" min="0" max="50" value="5" oninput="runSeverance()" />
+                    <span class="hint">Tahun</span>
+                  </div>
+                  <div>
+                    <input type="number" id="sevMonths" min="0" max="11" value="4" oninput="runSeverance()" />
+                    <span class="hint">Bulan</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FIELD KHUSUS PKWTT -->
+            <div id="pkwttFieldsGroup" style="margin-top:10px;">
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label for="phkReasonKey">Alasan Pengakhiran Hubungan Kerja (PP No. 35 Tahun 2021)</label>
+                  <select id="phkReasonKey" onchange="runSeverance()"></select>
+                </div>
+                <div class="form-group">
+                  <label for="sevSisaCuti">Sisa Cuti Tahunan Belum Gugur (Hari)</label>
+                  <input type="number" id="sevSisaCuti" min="0" max="60" value="4" oninput="runSeverance()" />
+                </div>
+                <div class="form-group">
+                  <label for="sevHariKerja">Pembagi Hari Kerja / Bulan</label>
+                  <select id="sevHariKerja" onchange="runSeverance()">
+                    <option value="25" selected>25 Hari (6 Hari Kerja / Minggu)</option>
+                    <option value="21">21 Hari (5 Hari Kerja / Minggu)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="sevOngkosPulang">Ongkos Pulang ke Tempat Penerimaan (Rp)</label>
+                  <input type="text" id="sevOngkosPulang" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                </div>
+                <div class="form-group">
+                  <label for="sevHakLain">Hak Lainnya / Uang Pisah PKB (Rp)</label>
+                  <input type="text" id="sevHakLain" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                </div>
+              </div>
+            </div>
+
+            <!-- FIELD KHUSUS PKWT -->
+            <div id="pkwtFieldsGroup" style="margin-top:10px;" hidden>
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label class="check-row">
+                    <input type="checkbox" id="pkwtPhkDini" onchange="togglePkwtDini(); runSeverance()" />
+                    <span>Pemutusan PKWT sebelum jangka waktu berakhir oleh Pemberi Kerja (Pasal 17 PP 35/2021)</span>
+                  </label>
+                </div>
+                <div class="form-group full" id="pkwtSisaBulanGroup" hidden>
+                  <label for="pkwtSisaBulan">Sisa Jangka Waktu Kontrak yang Belum Dijalani (Bulan)</label>
+                  <input type="number" id="pkwtSisaBulan" min="0" max="60" value="3" oninput="runSeverance()" />
+                </div>
+              </div>
+
+              <!-- Pengaturan Pajak Kompensasi PKWT -->
+              <div class="sub-panel">
+                <div class="sub-panel-title">Skema Pemotongan PPh 21 Kompensasi PKWT</div>
+                <div class="form-grid">
+                  <div class="form-group full">
+                    <label for="pkwtTaxMode">Status Kontrak Setelah Pencairan</label>
+                    <select id="pkwtTaxMode" onchange="togglePkwtTaxMode(); runSeverance()">
+                      <option value="BULANAN_TER" selected>Kontrak Diperpanjang / Lanjut Bekerja (PPh 21 TER PP 58/2023)</option>
+                      <option value="MASA_PAJAK_TERAKHIR">Kontrak Berakhir &amp; Berhenti Bekerja (Masa Pajak Terakhir PMK 168/2023)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="pkwtGajiBulanIni">Gaji Bruto Bulan Berjalan (Rp)</label>
+                    <input type="text" id="pkwtGajiBulanIni" class="num-input currency-input" value="8.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                  </div>
+                  <div class="form-group" id="pkwtBulanKerjaGroup" hidden>
+                    <label for="pkwtBulanKerjaThn">Jumlah Bulan Bekerja di Tahun Ini</label>
+                    <input type="number" id="pkwtBulanKerjaThn" min="1" max="12" value="10" oninput="runSeverance()" />
+                  </div>
+                  <div class="form-group" id="pkwtAkumBrutoGroup" hidden>
+                    <label for="pkwtAkumBruto">Akumulasi Bruto Sebelum Bulan Ini (Rp)</label>
+                    <input type="text" id="pkwtAkumBruto" class="num-input currency-input" value="72.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                  </div>
+                  <div class="form-group" id="pkwtPphPrevGroup" hidden>
+                    <label for="pkwtPphPrev">PPh 21 Sudah Dipotong Sebelumnya (Rp)</label>
+                    <input type="text" id="pkwtPphPrev" class="num-input currency-input" value="1.080.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL PENYESUAIAN INSTANSI: MIKRO/KECIL -->
+            <div class="sub-panel" id="panelMikroKecil" hidden>
+              <div class="sub-panel-title">Kesepakatan Usaha Mikro / Kecil (Pasal 18 &amp; 59 PP 35/2021)</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="mikroPersen">Persentase Kesepakatan (% dari Standar)</label>
+                  <input type="number" id="mikroPersen" min="0" max="200" value="50" oninput="runSeverance()" />
+                </div>
+                <div class="form-group">
+                  <label for="mikroNominal">Atau Nominal Kesepakatan Bulat (Rp)</label>
+                  <input type="text" id="mikroNominal" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  <span class="hint">Isi &gt; 0 jika disepakati angka bulat</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL PENYESUAIAN INSTANSI: BUMN / BUMD -->
+            <div class="sub-panel" id="panelBumnBumd" hidden>
+              <div class="sub-panel-title">Penyesuaian PKB / Peraturan Direksi BUMN &amp; BUMD</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="bumnUpOverride">Override Pengali UP (Kosongkan = Standar PP 35)</label>
+                  <input type="number" id="bumnUpOverride" step="0.25" min="0" max="5" placeholder="Contoh: 2.0" oninput="runSeverance()" />
+                </div>
+                <div class="form-group">
+                  <label for="bumnUpmkOverride">Override Pengali UPMK (Kosongkan = Standar)</label>
+                  <input type="number" id="bumnUpmkOverride" step="0.25" min="0" max="5" placeholder="Contoh: 1.5" oninput="runSeverance()" />
+                </div>
+                <div class="form-group full">
+                  <label for="bumnTaliAsih">Penghargaan Purna Bakti / Tali Asih Khusus (Rp)</label>
+                  <input type="text" id="bumnTaliAsih" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL PENYESUAIAN INSTANSI: NON-ASN BLUD -->
+            <div class="sub-panel" id="panelBludPerkada" hidden>
+              <div class="sub-panel-title">Aturan Kepala Daerah (Perkada) Pegawai Non-ASN BLUD</div>
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label for="bludSkema">Skema Uang Jasa Pengabdian / Pesangon BLUD</label>
+                  <select id="bludSkema" onchange="runSeverance()">
+                    <option value="PERKADA_PENGALI" selected>Pengali Bulan Upah per Tahun Pengabdian (Perbup/Perwalkot)</option>
+                    <option value="ADOPSI_PP35">Mengadopsi Penuh Rumus PP No. 35 Tahun 2021</option>
+                    <option value="NOMINAL_TETAP">Nominal Tetap Sesuai Keputusan Pimpinan BLUD</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="bludPengaliPerTahun">Pengali per Tahun Kerja (Bulan Upah)</label>
+                  <input type="number" id="bludPengaliPerTahun" step="0.5" min="0" max="3" value="1" oninput="runSeverance()" />
+                </div>
+                <div class="form-group">
+                  <label for="bludMaxBulan">Batas Maksimal Pengali (Bulan)</label>
+                  <input type="number" id="bludMaxBulan" min="1" max="24" value="9" oninput="runSeverance()" />
+                </div>
+                <div class="form-group full">
+                  <label for="bludNominalTetap">Nominal Tetap (Jika memilih skema Nominal Tetap)</label>
+                  <input type="text" id="bludNominalTetap" class="num-input currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                </div>
+              </div>
+            </div>
+
+            <!-- NIK/NPWP Valid -->
+            <div style="margin-top:8px;">
+              <label class="check-row">
+                <input type="checkbox" id="hasValidNikNpwp" checked onchange="runSeverance()" />
+                <span>Pekerja memiliki NIK/NPWP tervalidasi (Tarif normal PPh 21 Final Pesangon)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- HASIL PESANGON / PKWT -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Rincian Hak &amp; PPh 21</div>
+              <span class="hint" id="sevTaxSchemeBadge">PPh 21 Final PP 68/2009</span>
+            </div>
+
+            <div class="kpi-grid">
+              <div class="kpi-box highlight">
+                <div class="kpi-label">Total Hak Bersih Diterima (Take Home Pay)</div>
+                <div class="kpi-value" id="sevThpDisplay">Rp 0</div>
+              </div>
+              <div class="kpi-box">
+                <div class="kpi-label">Total Hak Bruto Sebelum Pajak</div>
+                <div class="kpi-value pos" id="sevBrutoDisplay">Rp 0</div>
+              </div>
+              <div class="kpi-box">
+                <div class="kpi-label">Potongan PPh 21</div>
+                <div class="kpi-value neg" id="sevTaxDisplay">Rp 0</div>
+              </div>
+            </div>
+
+            <div class="terbilang-box" id="sevTerbilang">Nol Rupiah</div>
+
+            <table class="acc-table">
+              <thead>
+                <tr>
+                  <th>Uraian Komponen</th>
+                  <th class="amt">Nominal (Rp)</th>
+                </tr>
+              </thead>
+              <tbody id="severanceResultBody"></tbody>
+            </table>
+
+            <div class="legal-box" id="severanceLegalBox"></div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="saveCurrentSimulation('SEVERANCE')">
+                Simpan ke Riwayat
+              </button>
+              <button class="btn btn-outline" onclick="printReport('SEVERANCE')">
+                Cetak / PDF A4
+              </button>
+              <button class="btn btn-outline" onclick="exportExcel('SEVERANCE')">
+                Ekspor Excel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: RIWAYAT SIMULASI (INDEXEDDB)                                 -->
+    <!-- =================================================================== -->
+    <div id="view-history" class="tab-view" hidden>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Arsip Riwayat Simulasi (Penyimpanan Lokal Offline)</div>
+          <button class="btn btn-danger btn-sm" onclick="clearAllHistory()">Hapus Semua</button>
+        </div>
+
+        <div class="form-grid" style="margin-bottom:12px;">
+          <div class="form-group">
+            <input type="text" id="historySearch" placeholder="Cari nama pegawai, instansi, atau jenis simulasi..." oninput="renderHistoryTable()" />
+          </div>
+          <div class="form-group">
+            <select id="historyFilterType" onchange="renderHistoryTable()">
+              <option value="ALL">Semua Jenis Simulasi</option>
+              <option value="PAYROLL">Payroll &amp; BPJS/Taspen</option>
+              <option value="SEVERANCE">Pesangon &amp; Kompensasi PKWT</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="acc-table">
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Pegawai</th>
+                <th>Profil Instansi</th>
+                <th>Modul</th>
+                <th class="amt">Bruto</th>
+                <th class="amt">THP Bersih</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREATOR FOOTER -->
+    <footer class="app-footer">
+      Dikembangkan oleh <a onclick="toggleCreatorModal(true)">Dul Muid (Bang Dul)</a> • Brebes, Jawa Tengah • &copy; 2026
+    </footer>
+  </main>
+
+  <!-- MOBILE BOTTOM NAVIGATION -->
+  <nav class="mobile-nav">
+    <div class="mobile-nav-inner">
+      <button class="mob-tab active" data-tab="payroll" onclick="switchTab('payroll')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        <span>Payroll &amp; BPJS</span>
+      </button>
+      <button class="mob-tab" data-tab="severance" onclick="switchTab('severance')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span>Pesangon/PKWT</span>
+      </button>
+      <button class="mob-tab" data-tab="history" onclick="switchTab('history')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Riwayat (<span id="mobHistoryCount">0</span>)</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- CREATOR ATTRIBUTION MODAL -->
+  <div class="modal-backdrop" id="creatorModal" hidden onclick="if(event.target===this) toggleCreatorModal(false)">
+    <div class="modal-box">
+      <span class="creator-chip">INFORMASI PENGEMBANG APLIKASI</span>
+      <h3 style="font-size:16px; color:var(--primary-dark); margin-bottom:4px;">Simulator Ketenagakerjaan Indonesia</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Versi 2.0 (Offline-First PWA)</p>
+
+      <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:8px; padding:11px; font-size:12.5px; margin-bottom:12px;">
+        <p><strong>Dirancang &amp; Dikembangkan oleh:</strong><br>Dul Muid (Bang Dul)</p>
+        <p style="margin-top:6px;"><strong>Domisili:</strong> Brebes, Jawa Tengah</p>
+        <p style="margin-top:6px;"><strong>Cakupan Sistem:</strong> Perhitungan Payroll, BPJS Kesehatan &amp; Ketenagakerjaan, PT Taspen, Pesangon PP 35/2021, Kompensasi PKWT, serta PPh 21 TER &amp; Final.</p>
+      </div>
+
+      <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">
+        *Hasil simulasi mengacu pada regulasi ketenagakerjaan dan perpajakan nasional yang berlaku sebagai alat bantu hitung administratif.
+      </p>
+
+      <div style="text-align:right;">
+        <button type="button" class="btn btn-primary" onclick="toggleCreatorModal(false)">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEDICATED PRINT / PDF CONTAINER -->
+  <div id="printArea"></div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* =========================================================================
+       1. LEGAL RULES ENGINE (Aturan Hukum & Konfigurasi Profil Instansi)
+       ========================================================================= */
+    const BPJS_CAPS_2026 = {
+      KESEHATAN_MAX_UPAH: 12000000, // Perpres 64/2020
+      TK_JP_MAX_UPAH: 11086300,     // Penyesuaian Plafon JP Maret 2026
+    };
+
+    const ENTITY_PROFILES = {
+      SWASTA_UMUM: {
+        label: "Perusahaan Swasta (Menengah / Besar)",
+        shortTag: "Swasta Umum",
+        category: "BADAN_USAHA",
+        bpjsKes: { active: true, empRate: 0.04, workerRate: 0.01 },
+        bpjsTk: { provider: "BPJS_TK", jkk: true, jkm: true, jht: true, jp: true, jkp: true },
+        severanceEligible: true,
+        legalBasis: [
+          "UU No. 6 Tahun 2023 tentang Penetapan Perppu Cipta Kerja",
+          "PP No. 35 Tahun 2021 (PKWT, Alih Daya, Waktu Kerja & PHK)",
+          "PP No. 36 Tahun 2021 (Pengupahan) & PP No. 37 Tahun 2021 (JKP)",
+          "Perpres No. 64 Tahun 2020 (BPJS Kesehatan) & PP No. 58 Tahun 2023 (PPh 21 TER)"
+        ]
+      },
+      SWASTA_MIKRO_KECIL: {
+        label: "Perusahaan Swasta (Mikro / Kecil)",
+        shortTag: "Usaha Mikro/Kecil",
+        category: "BADAN_USAHA",
+        bpjsKes: { active: true, empRate: 0.04, workerRate: 0.01 },
+        bpjsTk: { provider: "BPJS_TK", jkk: true, jkm: true, jht: true, jp: false, jkp: false },
+        severanceEligible: true,
+        legalBasis: [
+          "UU No. 6 Tahun 2023 Pasal 90B (Pengupahan Usaha Mikro & Kecil)",
+          "PP No. 35 Tahun 2021 Pasal 18 & Pasal 59 (Kesepakatan Kompensasi & Pesangon)",
+          "PP No. 44 Tahun 2015 & PP No. 45 Tahun 2015 (Kepesertaan Bertahap BPJS TK)"
+        ]
+      },
+      BUMN_BUMD: {
+        label: "BUMN / BUMD (Perumda & Perseroda)",
+        shortTag: "BUMN / BUMD",
+        category: "BADAN_USAHA",
+        bpjsKes: { active: true, empRate: 0.04, workerRate: 0.01 },
+        bpjsTk: { provider: "BPJS_TK", jkk: true, jkm: true, jht: true, jp: true, jkp: true },
+        severanceEligible: true,
+        legalBasis: [
+          "UU No. 6 Tahun 2023 & PP No. 35 Tahun 2021 (Lantai Minimum Pesangon)",
+          "Peraturan Perusahaan / PKB / Peraturan Direksi BUMN-BUMD",
+          "PP No. 37 Tahun 2021 (Jaminan Kehilangan Pekerjaan)"
+        ]
+      },
+      ASN_PNS: {
+        label: "Instansi Pemerintah / Pemda (PNS — PT Taspen)",
+        shortTag: "ASN PNS",
+        category: "PEMERINTAH",
+        bpjsKes: { active: true, empRate: 0.04, workerRate: 0.01 },
+        bpjsTk: { provider: "TASPEN", jkk: true, jkm: true, jht: false, jp: false, jkp: false },
+        severanceEligible: false,
+        asnMessage: "Pegawai Negeri Sipil (PNS) tidak menggunakan skema pesangon UU Cipta Kerja / PP 35/2021. Hak pemberhentian diatur melalui program Pensiun dan Tabungan Hari Tua (THT) PT Taspen berdasarkan UU No. 20 Tahun 2023 tentang ASN.",
+        legalBasis: [
+          "UU No. 20 Tahun 2023 tentang Aparatur Sipil Negara (ASN)",
+          "PP No. 70 Tahun 2015 jo. PP No. 66 Tahun 2017 (JKK & JKM ASN Taspen)",
+          "Perpres No. 64 Tahun 2020 (BPJS Kesehatan PPU Pemerintah)"
+        ]
+      },
+      ASN_PPPK: {
+        label: "Instansi Pemerintah / Pemda (PPPK)",
+        shortTag: "ASN PPPK",
+        category: "PEMERINTAH",
+        bpjsKes: { active: true, empRate: 0.04, workerRate: 0.01 },
+        bpjsTk: { provider: "BPJS_TK", jkk: true, jkm: true, jht: true, jp: true, jkp: false },
+        severanceEligible: false,
+        asnMessage: "Pegawai Pemerintah dengan Perjanjian Kerja (PPPK) tidak tunduk pada kompensasi PKWT/pesangon PP 35/2021. Jaminan hari tua dan pensiun PPPK diatur berdasarkan UU No. 20 Tahun 2023 tentang ASN serta PP No. 49 Tahun 2018.",
+        legalBasis: [
+          "UU No. 20 Tahun 2023 tentang Aparatur Sipil Negara (ASN)",
+          "PP No. 49 Tahun 2018 tentang Manajemen PPPK",
+          "Perpres No. 64 Tahun 2020 (BPJS Kesehatan)"
+        ]
+      },
+      NON_ASN_BLUD: {
+        label: "Pegawai Non-ASN / Kontrak BLUD (RSUD / Dinas)",
+        shortTag: "Non-ASN BLUD",
+        category: "PEMERINTAH_BLUD",
+        bpjsKes: { active: true, empRate: 0.04, workerRate: 0.01 },
+        bpjsTk: { provider: "BPJS_TK", jkk: true, jkm: true, jht: true, jp: false, jkp: false },
+        severanceEligible: true,
+        legalBasis: [
+          "Permendagri No. 79 Tahun 2018 tentang Badan Layanan Umum Daerah (BLUD)",
+          "Peraturan Kepala Daerah (Perbup/Perwalkot) tentang Remunerasi & Pegawai Non-ASN BLUD",
+          "Perpres No. 64 Tahun 2020 & UU No. 24 Tahun 2011 tentang BPJS"
+        ]
+      }
+    };
+
+    const PHK_REASONS_PP35 = {
+      EFISIENSI_CEGAH_RUGI: { label: "Efisiensi untuk Mencegah Kerugian (Pasal 43 ayat 2) — 1x UP + 1x UPMK", upMult: 1.0, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      EFISIENSI_RUGI: { label: "Efisiensi karena Perusahaan Rugi (Pasal 43 ayat 1) — 0,5x UP + 1x UPMK", upMult: 0.5, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      PENSIUN: { label: "Memasuki Usia Pensiun (Pasal 56) — 1,75x UP + 1x UPMK", upMult: 1.75, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      MENINGGAL_DUNIA: { label: "Pekerja Meninggal Dunia (Pasal 57) — 2x UP + 1x UPMK", upMult: 2.0, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      SAKIT_BERKEPANJANGAN: { label: "Sakit Berkepanjangan / Cacat Kerja >12 Bln (Pasal 55) — 2x UP + 1x UPMK", upMult: 2.0, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      TUTUP_BUKAN_RUGI: { label: "Perusahaan Tutup Bukan karena Rugi (Pasal 44 ayat 2) — 1x UP + 1x UPMK", upMult: 1.0, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      TUTUP_RUGI_FORCE_MAJEURE: { label: "Perusahaan Tutup karena Rugi / Force Majeure (Pasal 44 ayat 1) — 0,5x UP + 1x UPMK", upMult: 0.5, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      FORCE_MAJEURE_TIDAK_TUTUP: { label: "Force Majeure Tidak Tutup (Pasal 45 ayat 2) — 0,75x UP + 1x UPMK", upMult: 0.75, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      PAILIT: { label: "Perusahaan Pailit (Pasal 47) — 0,5x UP + 1x UPMK", upMult: 0.5, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      MERGER_PEKERJA_MENOLAK: { label: "Penggabungan/Peleburan & Pekerja Menolak Lanjut (Pasal 41) — 1x UP + 1x UPMK", upMult: 1.0, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      AKUISISI_UBAH_SYARAT: { label: "Akuisisi dengan Perubahan Syarat Kerja (Pasal 42 ayat 2) — 0,5x UP + 1x UPMK", upMult: 0.5, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      PELANGGARAN_SP3: { label: "Pelanggaran PK/PP/PKB setelah SP 1, 2, 3 (Pasal 52 ayat 1) — 0,5x UP + 1x UPMK", upMult: 0.5, upmkMult: 1.0, uphActive: true, uangPisah: false },
+      RESIGN: { label: "Mengundurkan Diri Atas Kemauan Sendiri (Pasal 50) — UPH + Uang Pisah", upMult: 0, upmkMult: 0, uphActive: true, uangPisah: true },
+      MANGKIR: { label: "Mangkir 5 Hari Kerja Berturut-turut (Pasal 51) — UPH + Uang Pisah", upMult: 0, upmkMult: 0, uphActive: true, uangPisah: true },
+      PELANGGARAN_MENDESAK: { label: "Pelanggaran Bersifat Mendesak (Pasal 52 ayat 2) — UPH + Uang Pisah", upMult: 0, upmkMult: 0, uphActive: true, uangPisah: true }
+    };
+
+    const PTKP_PROFILES = {
+      "TK/0": { ptkp: 54000000, terCategory: "A" },
+      "TK/1": { ptkp: 58500000, terCategory: "A" },
+      "K/0":  { ptkp: 58500000, terCategory: "A" },
+      "TK/2": { ptkp: 63000000, terCategory: "B" },
+      "K/1":  { ptkp: 63000000, terCategory: "B" },
+      "TK/3": { ptkp: 67500000, terCategory: "B" },
+      "K/2":  { ptkp: 67500000, terCategory: "B" },
+      "K/3":  { ptkp: 72000000, terCategory: "C" }
+    };
+
+    const TER_TABLES = {
+      A: [
+        [5400000, 0], [5650000, 0.0025], [5950000, 0.005], [6300000, 0.0075],
+        [6750000, 0.01], [7500000, 0.0125], [8550000, 0.015], [9650000, 0.0175],
+        [10050000, 0.02], [10350000, 0.0225], [10700000, 0.025], [11050000, 0.03],
+        [11600000, 0.035], [12500000, 0.04], [13750000, 0.05], [15100000, 0.06],
+        [16950000, 0.07], [19750000, 0.08], [24150000, 0.09], [26450000, 0.10],
+        [28000000, 0.11], [30050000, 0.12], [32400000, 0.13], [35400000, 0.14],
+        [39100000, 0.15], [43850000, 0.16], [47800000, 0.17], [51400000, 0.18],
+        [56300000, 0.19], [62200000, 0.20], [68600000, 0.21], [77500000, 0.22],
+        [89000000, 0.23], [103000000, 0.24], [125000000, 0.25], [157000000, 0.26],
+        [206000000, 0.27], [337000000, 0.28], [454000000, 0.29], [550000000, 0.30],
+        [695000000, 0.31], [910000000, 0.32], [1400000000, 0.33], [Infinity, 0.34]
+      ],
+      B: [
+        [6200000, 0], [6500000, 0.0025], [6850000, 0.005], [7300000, 0.0075],
+        [9200000, 0.01], [10750000, 0.015], [11250000, 0.02], [11600000, 0.025],
+        [12600000, 0.03], [13600000, 0.04], [14950000, 0.05], [16400000, 0.06],
+        [18450000, 0.07], [21850000, 0.08], [26000000, 0.09], [27700000, 0.10],
+        [29350000, 0.11], [31450000, 0.12], [33950000, 0.13], [37100000, 0.14],
+        [41100000, 0.15], [45800000, 0.16], [49500000, 0.17], [53800000, 0.18],
+        [58500000, 0.19], [64000000, 0.20], [71000000, 0.21], [80000000, 0.22],
+        [93000000, 0.23], [109000000, 0.24], [131000000, 0.25], [165000000, 0.26],
+        [214000000, 0.27], [342000000, 0.28], [459000000, 0.29], [555000000, 0.30],
+        [704000000, 0.31], [957000000, 0.32], [1405000000, 0.33], [Infinity, 0.34]
+      ],
+      C: [
+        [6600000, 0], [6950000, 0.0025], [7350000, 0.005], [7800000, 0.0075],
+        [8850000, 0.01], [9800000, 0.0125], [10950000, 0.015], [11200000, 0.0175],
+        [12050000, 0.02], [12950000, 0.03], [14150000, 0.04], [15550000, 0.05],
+        [17050000, 0.06], [19500000, 0.07], [22700000, 0.08], [26600000, 0.09],
+        [28100000, 0.10], [30100000, 0.11], [32600000, 0.12], [35400000, 0.13],
+        [38900000, 0.14], [43000000, 0.15], [47400000, 0.16], [51200000, 0.17],
+        [55800000, 0.18], [60400000, 0.19], [66700000, 0.20], [74500000, 0.21],
+        [83200000, 0.22], [95600000, 0.23], [110000000, 0.24], [134000000, 0.25],
+        [169000000, 0.26], [221000000, 0.27], [390000000, 0.28], [463000000, 0.29],
+        [561000000, 0.30], [709000000, 0.31], [965000000, 0.32], [1419000000, 0.33],
+        [Infinity, 0.34]
+      ]
+    };
+
+    const PPH21_FINAL_PESANGON = [
+      { max: 50000000, rate: 0.00, label: "Lapis 1 (s.d. Rp50.000.000) — 0%" },
+      { max: 100000000, rate: 0.05, label: "Lapis 2 (> Rp50 jt s.d. Rp100 jt) — 5%" },
+      { max: 500000000, rate: 0.15, label: "Lapis 3 (> Rp100 jt s.d. Rp500 jt) — 15%" },
+      { max: Infinity, rate: 0.25, label: "Lapis 4 (> Rp500.000.000) — 25%" }
+    ];
+
+    const PPH21_PASAL17 = [
+      { max: 60000000, rate: 0.05 },
+      { max: 250000000, rate: 0.15 },
+      { max: 500000000, rate: 0.25 },
+      { max: 5000000000, rate: 0.30 },
+      { max: Infinity, rate: 0.35 }
+    ];
+
+    /* =========================================================================
+       2. FORMATTER & TERBILANG UTILITIES
+       ========================================================================= */
+    function parseCurrency(str) {
+      if (typeof str === "number") return str;
+      const cleaned = String(str || "0").replace(/[^\d]/g, "");
+      return parseInt(cleaned, 10) || 0;
+    }
+
+    function formatRp(num) {
+      const n = Math.round(Number(num) || 0);
+      return "Rp " + n.toLocaleString("id-ID");
+    }
+
+    function formatCurrencyInput(el) {
+      const val = parseCurrency(el.value);
+      el.value = val.toLocaleString("id-ID");
+    }
+
+    function terbilang(n) {
+      n = Math.floor(Math.abs(Number(n) || 0));
+      if (n === 0) return "Nol Rupiah";
+      const satuan = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+      function conv(num) {
+        if (num < 12) return satuan[num];
+        if (num < 20) return conv(num - 10) + " Belas";
+        if (num < 100) return conv(Math.floor(num / 10)) + " Puluh" + (num % 10 ? " " + conv(num % 10) : "");
+        if (num < 200) return "Seratus" + (num - 100 ? " " + conv(num - 100) : "");
+        if (num < 1000) return conv(Math.floor(num / 100)) + " Ratus" + (num % 100 ? " " + conv(num % 100) : "");
+        if (num < 2000) return "Seribu" + (num - 1000 ? " " + conv(num - 1000) : "");
+        if (num < 1000000) return conv(Math.floor(num / 1000)) + " Ribu" + (num % 1000 ? " " + conv(num % 1000) : "");
+        if (num < 1000000000) return conv(Math.floor(num / 1000000)) + " Juta" + (num % 1000000 ? " " + conv(num % 1000000) : "");
+        if (num < 1000000000000) return conv(Math.floor(num / 1000000000)) + " Miliar" + (num % 1000000000 ? " " + conv(num % 1000000000) : "");
+        return conv(Math.floor(num / 1000000000000)) + " Triliun" + (num % 1000000000000 ? " " + conv(num % 1000000000000) : "");
+      }
+      return conv(n).replace(/\s+/g, " ").trim() + " Rupiah";
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2600);
+    }
+
+    /* =========================================================================
+       3. CALCULATION ENGINES (PAYROLL, BPJS/TASPEN, PESANGON, PKWT & PPH 21)
+       ========================================================================= */
+    function getTerRate(ptkpStatus, monthlyGross) {
+      const map = PTKP_PROFILES[ptkpStatus] || PTKP_PROFILES["TK/0"];
+      const table = TER_TABLES[map.terCategory];
+      const row = table.find(([max]) => monthlyGross <= max) || table[table.length - 1];
+      return { category: map.terCategory, ptkp: map.ptkp, rate: row[1] };
+    }
+
+    let latestPayrollData = null;
+    let latestSeveranceData = null;
+    let contractStatus = "PKWTT";
+
+    function runPayroll() {
+      const profileKey = document.getElementById("globalEntityProfile").value;
+      const profile = ENTITY_PROFILES[profileKey];
+      const empName = document.getElementById("empName").value.trim() || "Pegawai";
+      const ptkpStatus = document.getElementById("ptkpStatus").value;
+
+      const gajiPokok = parseCurrency(document.getElementById("payGajiPokok").value);
+      const tunjTetap = parseCurrency(document.getElementById("payTunjTetap").value);
+      const tunjTidakTetap = parseCurrency(document.getElementById("payTunjTidakTetap").value);
+      const potonganLain = parseCurrency(document.getElementById("payPotonganLain").value);
+
+      const upahTetap = gajiPokok + tunjTetap;
+      const upahBrutoTunai = upahTetap + tunjTidakTetap;
+
+      const extraFamily = parseInt(document.getElementById("bpjsKesExtraFamily").value, 10) || 0;
+      const jkkRate = parseFloat(document.getElementById("jkkRiskRate").value) || 0.0024;
+      const includePremi = document.getElementById("includePremiInBruto").checked;
+      const asnTaxDtp = document.getElementById("asnTaxBorneByGov").checked;
+
+      // 1. BPJS Kesehatan (PPU: 4% Pemberi Kerja, 1% Pekerja + 1% per keluarga tambahan)
+      const dasarKes = Math.min(upahTetap, BPJS_CAPS_2026.KESEHATAN_MAX_UPAH);
+      const kesEmployer = Math.round(dasarKes * 0.04);
+      const kesWorker = Math.round(dasarKes * (0.01 + extraFamily * 0.01));
+
+      // 2. BPJS Ketenagakerjaan / PT Taspen
+      let jkkEmployer = 0, jkmEmployer = 0, jhtEmployer = 0, jhtWorker = 0;
+      let jpEmployer = 0, jpWorker = 0, taspenTht = 0, taspenPensiun = 0;
+      let jkpActive = profile.bpjsTk.jkp;
+
+      if (profileKey === "ASN_PNS") {
+        jkkEmployer = Math.round(upahTetap * 0.0024);
+        jkmEmployer = Math.round(upahTetap * 0.0072);
+        taspenTht = Math.round(upahTetap * 0.0325);
+        taspenPensiun = Math.round(upahTetap * 0.0475);
+      } else {
+        const useOpt = (profileKey === "SWASTA_MIKRO_KECIL" || profileKey === "NON_ASN_BLUD");
+        const jhtActive = useOpt ? document.getElementById("optJhtActive").checked : profile.bpjsTk.jht;
+        const jpActive = useOpt ? document.getElementById("optJpActive").checked : profile.bpjsTk.jp;
+
+        if (profile.bpjsTk.jkk) jkkEmployer = Math.round(upahTetap * jkkRate);
+        if (profile.bpjsTk.jkm) jkmEmployer = Math.round(upahTetap * 0.003);
+        if (jhtActive) {
+          jhtEmployer = Math.round(upahTetap * 0.037);
+          jhtWorker = Math.round(upahTetap * 0.02);
+        }
+        if (jpActive) {
+          const dasarJp = Math.min(upahTetap, BPJS_CAPS_2026.TK_JP_MAX_UPAH);
+          jpEmployer = Math.round(dasarJp * 0.02);
+          jpWorker = Math.round(dasarJp * 0.01);
+        }
+      }
+
+      // 3. PPh 21 Bulanan TER (PP No. 58 Tahun 2023)
+      const premiPenambahBruto = includePremi ? (kesEmployer + jkkEmployer + jkmEmployer) : 0;
+      const brutoPph21 = upahBrutoTunai + premiPenambahBruto;
+      const terInfo = getTerRate(ptkpStatus, brutoPph21);
+      const pph21Terhitung = Math.round(brutoPph21 * terInfo.rate);
+      const isAsn = (profileKey === "ASN_PNS" || profileKey === "ASN_PPPK");
+      const pph21PotongPekerja = (isAsn && asnTaxDtp) ? 0 : pph21Terhitung;
+
+      const totalPotonganPekerja = kesWorker + jhtWorker + jpWorker + taspenTht + taspenPensiun + pph21PotongPekerja + potonganLain;
+      const totalBebanPemberiKerja = kesEmployer + jkkEmployer + jkmEmployer + jhtEmployer + jpEmployer;
+      const takeHomePay = Math.max(0, upahBrutoTunai - totalPotonganPekerja);
+
+      document.getElementById("payThpDisplay").textContent = formatRp(takeHomePay);
+      document.getElementById("payTotalDeductDisplay").textContent = formatRp(totalPotonganPekerja);
+      document.getElementById("payEmployerCostDisplay").textContent = formatRp(totalBebanPemberiKerja);
+      document.getElementById("payTerbilang").textContent = "Terbilang: " + terbilang(takeHomePay);
+
+      const rows = [
+        { sec: "A. Penerimaan Bruto Pekerja" },
+        { label: "Gaji Pokok", val: formatRp(gajiPokok) },
+        { label: "Tunjangan Tetap", val: formatRp(tunjTetap) },
+        { label: "Tunjangan Tidak Tetap / Lembur / Jaspel", val: formatRp(tunjTidakTetap) },
+        { label: "Total Penerimaan Tunai Bruto", val: formatRp(upahBrutoTunai), total: true },
+
+        { sec: "B. Potongan Pekerja" },
+        { label: `BPJS Kesehatan Pekerja (${1 + extraFamily}% x ${formatRp(dasarKes)})`, val: "- " + formatRp(kesWorker), cls: "neg" }
+      ];
+
+      if (profileKey === "ASN_PNS") {
+        rows.push({ label: "Iuran THT PT Taspen (3,25%)", val: "- " + formatRp(taspenTht), cls: "neg" });
+        rows.push({ label: "Iuran Pensiun PT Taspen (4,75%)", val: "- " + formatRp(taspenPensiun), cls: "neg" });
+      } else {
+        if (jhtWorker > 0) rows.push({ label: "BPJS TK — JHT Pekerja (2%)", val: "- " + formatRp(jhtWorker), cls: "neg" });
+        if (jpWorker > 0) rows.push({ label: `BPJS TK — Jaminan Pensiun Pekerja (1% max Rp11,086 Jt)`, val: "- " + formatRp(jpWorker), cls: "neg" });
+      }
+
+      const pphLabel = (isAsn && asnTaxDtp)
+        ? `PPh 21 TER Kat. ${terInfo.category} (${(terInfo.rate * 100).toFixed(2)}%) — DTP Pemerintah (${formatRp(pph21Terhitung)})`
+        : `PPh 21 TER Kat. ${terInfo.category} (${(terInfo.rate * 100).toFixed(2)}% x Bruto ${formatRp(brutoPph21)})`;
+      rows.push({ label: pphLabel, val: "- " + formatRp(pph21PotongPekerja), cls: "neg" });
+
+      if (potonganLain > 0) {
+        rows.push({ label: "Potongan Internal Lainnya", val: "- " + formatRp(potonganLain), cls: "neg" });
+      }
+      rows.push({ label: "Total Potongan Pekerja", val: "- " + formatRp(totalPotonganPekerja), total: true, cls: "neg" });
+
+      rows.push({ sec: "C. Iuran Ditanggung Pemberi Kerja (Non-Potongan Gaji)" });
+      rows.push({ label: "BPJS Kesehatan Pemberi Kerja (4%)", val: formatRp(kesEmployer) });
+      rows.push({ label: profileKey === "ASN_PNS" ? "JKK Taspen (0,24%)" : `BPJS TK — JKK (${(jkkRate * 100).toFixed(2)}%)`, val: formatRp(jkkEmployer) });
+      rows.push({ label: profileKey === "ASN_PNS" ? "JKM Taspen (0,72%)" : "BPJS TK — JKM (0,30%)", val: formatRp(jkmEmployer) });
+      if (jhtEmployer > 0) rows.push({ label: "BPJS TK — JHT Pemberi Kerja (3,70%)", val: formatRp(jhtEmployer) });
+      if (jpEmployer > 0) rows.push({ label: "BPJS TK — Jaminan Pensiun Pemberi Kerja (2,00%)", val: formatRp(jpEmployer) });
+      if (jkpActive) rows.push({ label: "BPJS TK — JKP (Aktif — Rekomposisi JKK/JKM)", val: "Rp 0 (0%)" });
+      rows.push({ label: "Total Beban Iuran Pemberi Kerja", val: formatRp(totalBebanPemberiKerja), total: true, cls: "pos" });
+
+      renderAccTable("payrollResultBody", rows);
+
+      document.getElementById("payrollLegalBox").innerHTML =
+        `<strong>Dasar Hukum (${profile.label}):</strong><ul>` +
+        profile.legalBasis.map(b => `<li>${b}</li>`).join("") + `</ul>`;
+
+      latestPayrollData = {
+        type: "PAYROLL",
+        empName,
+        profileKey,
+        profileLabel: profile.label,
+        ptkpStatus,
+        bruto: upahBrutoTunai,
+        potongan: totalPotonganPekerja,
+        bebanPerusahaan: totalBebanPemberiKerja,
+        thp: takeHomePay,
+        terbilangText: terbilang(takeHomePay),
+        rows,
+        legalBasis: profile.legalBasis
+      };
+    }
+
+    function getBaseUpMonths(fullYears) {
+      if (fullYears < 1) return 1;
+      if (fullYears >= 8) return 9;
+      return fullYears + 1;
+    }
+
+    function getBaseUpmkMonths(fullYears) {
+      if (fullYears < 3) return 0;
+      if (fullYears >= 24) return 10;
+      return Math.floor(fullYears / 3) + 1;
+    }
+
+    function calculatePph21FinalPesangon(gross, hasValidNik) {
+      if (gross <= 0) return { totalTax: 0, layers: [] };
+      let rem = gross, prev = 0, totalTax = 0;
+      const layers = [];
+      for (const b of PPH21_FINAL_PESANGON) {
+        if (rem <= 0) break;
+        const width = b.max === Infinity ? rem : b.max - prev;
+        const dpp = Math.min(rem, width);
+        const effRate = hasValidNik ? b.rate : b.rate * 1.2;
+        const tax = Math.round(dpp * effRate);
+        layers.push({ label: b.label, dpp, rate: effRate, tax });
+        totalTax += tax;
+        rem -= dpp;
+        prev = b.max;
+      }
+      return { totalTax, layers };
+    }
+
+    function runSeverance() {
+      const profileKey = document.getElementById("globalEntityProfile").value;
+      const profile = ENTITY_PROFILES[profileKey];
+      const empName = document.getElementById("empName").value.trim() || "Pegawai";
+      const ptkpStatus = document.getElementById("ptkpStatus").value;
+
+      if (!profile.severanceEligible) {
+        latestSeveranceData = null;
+        return;
+      }
+
+      const upahTetap = parseCurrency(document.getElementById("sevUpahTetap").value);
+      const years = Math.max(0, parseInt(document.getElementById("sevYears").value, 10) || 0);
+      const months = Math.max(0, Math.min(11, parseInt(document.getElementById("sevMonths").value, 10) || 0));
+      const totalMonths = years * 12 + months;
+      const fullYears = Math.floor(totalMonths / 12);
+      const hasValidNik = document.getElementById("hasValidNikNpwp").checked;
+
+      let totalBruto = 0;
+      let totalTax = 0;
+      let taxSchemeLabel = "";
+      const rows = [];
+
+      if (contractStatus === "PKWT") {
+        const kompensasiDasar = totalMonths >= 1 ? Math.round((totalMonths / 12) * upahTetap) : 0;
+        let kompensasiFinal = kompensasiDasar;
+
+        if (profileKey === "SWASTA_MIKRO_KECIL") {
+          const nom = parseCurrency(document.getElementById("mikroNominal").value);
+          const pct = parseFloat(document.getElementById("mikroPersen").value) || 0;
+          kompensasiFinal = nom > 0 ? nom : Math.round(kompensasiDasar * (pct / 100));
+        } else if (profileKey === "NON_ASN_BLUD") {
+          const skema = document.getElementById("bludSkema").value;
+          if (skema === "NOMINAL_TETAP") {
+            kompensasiFinal = parseCurrency(document.getElementById("bludNominalTetap").value);
+          }
+        }
+
+        const isPhkDini = document.getElementById("pkwtPhkDini").checked;
+        const sisaBln = Math.max(0, parseInt(document.getElementById("pkwtSisaBulan").value, 10) || 0);
+        const gantiRugi = (isPhkDini && sisaBln > 0) ? Math.round(sisaBln * upahTetap) : 0;
+
+        totalBruto = kompensasiFinal + gantiRugi;
+
+        const taxMode = document.getElementById("pkwtTaxMode").value;
+        const gajiBulanIni = parseCurrency(document.getElementById("pkwtGajiBulanIni").value);
+
+        rows.push({ sec: `A. Hak Kompensasi PKWT (${years} Thn ${months} Bln = ${totalMonths} Bulan)` });
+        rows.push({ label: `Uang Kompensasi PKWT (${totalMonths}/12 x ${formatRp(upahTetap)})`, val: formatRp(kompensasiFinal) });
+        if (gantiRugi > 0) {
+          rows.push({ label: `Ganti Rugi Sisa Kontrak (${sisaBln} Bln x ${formatRp(upahTetap)})`, val: formatRp(gantiRugi) });
+        }
+        rows.push({ label: "Total Hak Bruto PKWT", val: formatRp(totalBruto), total: true, cls: "pos" });
+
+        if (taxMode === "MASA_PAJAK_TERAKHIR") {
+          taxSchemeLabel = "PPh 21 Masa Pajak Terakhir (PMK 168/2023)";
+          const jmlBln = Math.min(12, Math.max(1, parseInt(document.getElementById("pkwtBulanKerjaThn").value, 10) || 1));
+          const akumBruto = parseCurrency(document.getElementById("pkwtAkumBruto").value);
+          const pphPrev = parseCurrency(document.getElementById("pkwtPphPrev").value);
+
+          const totalBrutoSetahun = akumBruto + gajiBulanIni + totalBruto;
+          const biayaJabatan = Math.min(Math.round(totalBrutoSetahun * 0.05), jmlBln * 500000);
+          const ptkp = (PTKP_PROFILES[ptkpStatus] || PTKP_PROFILES["TK/0"]).ptkp;
+          const pkp = Math.floor(Math.max(0, totalBrutoSetahun - biayaJabatan - ptkp) / 1000) * 1000;
+
+          let remPkp = pkp, prevB = 0, pphSetahun = 0;
+          for (const b of PPH21_PASAL17) {
+            if (remPkp <= 0) break;
+            const w = b.max === Infinity ? remPkp : b.max - prevB;
+            const taxPart = Math.min(remPkp, w);
+            pphSetahun += Math.round(taxPart * b.rate);
+            remPkp -= taxPart;
+            prevB = b.max;
+          }
+          totalTax = Math.max(0, pphSetahun - pphPrev);
+
+          rows.push({ sec: "B. Rekonsiliasi PPh 21 Masa Pajak Terakhir (Pasal 17 UU PPh)" });
+          rows.push({ label: `Akumulasi Bruto Setahun (${jmlBln} Bulan + Kompensasi)`, val: formatRp(totalBrutoSetahun) });
+          rows.push({ label: "Biaya Jabatan & PTKP (" + ptkpStatus + ")", val: "- " + formatRp(biayaJabatan + ptkp) });
+          rows.push({ label: "Penghasilan Kena Pajak (PKP)", val: formatRp(pkp) });
+          rows.push({ label: `PPh 21 Terutang Setahun (${formatRp(pphSetahun)}) - Sudah Dipotong (${formatRp(pphPrev)})`, val: "- " + formatRp(totalTax), total: true, cls: "neg" });
+        } else {
+          taxSchemeLabel = "PPh 21 TER Bulanan (PP 58/2023)";
+          const terNormal = getTerRate(ptkpStatus, gajiBulanIni);
+          const terGabungan = getTerRate(ptkpStatus, gajiBulanIni + totalBruto);
+          const pphNormal = Math.round(gajiBulanIni * terNormal.rate);
+          const pphGabungan = Math.round((gajiBulanIni + totalBruto) * terGabungan.rate);
+          totalTax = Math.max(0, pphGabungan - pphNormal);
+
+          rows.push({ sec: `B. Perhitungan PPh 21 TER Kategori ${terGabungan.category} (${ptkpStatus})` });
+          rows.push({ label: `PPh 21 Gaji Rutin Saja (${(terNormal.rate * 100).toFixed(2)}% x ${formatRp(gajiBulanIni)})`, val: formatRp(pphNormal) });
+          rows.push({ label: `PPh 21 Gabungan Gaji + Kompensasi (${(terGabungan.rate * 100).toFixed(2)}% x ${formatRp(gajiBulanIni + totalBruto)})`, val: formatRp(pphGabungan) });
+          rows.push({ label: "Selisih Potongan PPh 21 Khusus Kompensasi PKWT", val: "- " + formatRp(totalTax), total: true, cls: "neg" });
+        }
+      } else {
+        const reasonKey = document.getElementById("phkReasonKey").value;
+        const reason = PHK_REASONS_PP35[reasonKey] || PHK_REASONS_PP35.EFISIENSI_CEGAH_RUGI;
+        const baseUp = getBaseUpMonths(fullYears);
+        const baseUpmk = getBaseUpmkMonths(fullYears);
+
+        const sisaCuti = Math.max(0, parseInt(document.getElementById("sevSisaCuti").value, 10) || 0);
+        const hariKerja = parseInt(document.getElementById("sevHariKerja").value, 10) || 25;
+        const ongkosPulang = parseCurrency(document.getElementById("sevOngkosPulang").value);
+        const hakLain = parseCurrency(document.getElementById("sevHakLain").value);
+
+        const nilaiCuti = Math.round((sisaCuti / hariKerja) * upahTetap);
+        const totalUph = reason.uphActive ? (nilaiCuti + ongkosPulang + (reason.uangPisah ? 0 : hakLain)) : 0;
+        const uangPisah = reason.uangPisah ? hakLain : 0;
+
+        let upNominal = 0, upmkNominal = 0, tambahanBumn = 0;
+        let upMult = reason.upMult, upmkMult = reason.upmkMult;
+
+        if (profileKey === "SWASTA_UMUM") {
+          upNominal = Math.round(baseUp * upMult * upahTetap);
+          upmkNominal = Math.round(baseUpmk * upmkMult * upahTetap);
+        } else if (profileKey === "SWASTA_MIKRO_KECIL") {
+          const nom = parseCurrency(document.getElementById("mikroNominal").value);
+          const pct = parseFloat(document.getElementById("mikroPersen").value) || 0;
+          if (nom > 0) {
+            upNominal = nom;
+          } else {
+            upNominal = Math.round(baseUp * upMult * upahTetap * (pct / 100));
+            upmkNominal = Math.round(baseUpmk * upmkMult * upahTetap * (pct / 100));
+          }
+        } else if (profileKey === "BUMN_BUMD") {
+          const ovUp = parseFloat(document.getElementById("bumnUpOverride").value);
+          const ovUpmk = parseFloat(document.getElementById("bumnUpmkOverride").value);
+          if (!isNaN(ovUp) && ovUp >= 0) upMult = ovUp;
+          if (!isNaN(ovUpmk) && ovUpmk >= 0) upmkMult = ovUpmk;
+          upNominal = Math.round(baseUp * upMult * upahTetap);
+          upmkNominal = Math.round(baseUpmk * upmkMult * upahTetap);
+          tambahanBumn = parseCurrency(document.getElementById("bumnTaliAsih").value);
+        } else if (profileKey === "NON_ASN_BLUD") {
+          const skema = document.getElementById("bludSkema").value;
+          if (skema === "ADOPSI_PP35") {
+            upNominal = Math.round(baseUp * upMult * upahTetap);
+            upmkNominal = Math.round(baseUpmk * upmkMult * upahTetap);
+          } else if (skema === "NOMINAL_TETAP") {
+            upNominal = parseCurrency(document.getElementById("bludNominalTetap").value);
+          } else {
+            const perThn = parseFloat(document.getElementById("bludPengaliPerTahun").value) || 0;
+            const maxBln = parseInt(document.getElementById("bludMaxBulan").value, 10) || 9;
+            const pengaliBlud = Math.min(fullYears * perThn, maxBln);
+            upNominal = Math.round(pengaliBlud * upahTetap);
+          }
+        }
+
+        totalBruto = upNominal + upmkNominal + totalUph + uangPisah + tambahanBumn;
+
+        rows.push({ sec: `A. Komponen Hak PHK PKWTT (${years} Thn ${months} Bln)` });
+        rows.push({ label: `Uang Pesangon / Jasa Pengabdian (Dasar ${baseUp} bln x ${upMult}x)`, val: formatRp(upNominal) });
+        rows.push({ label: `Uang Penghargaan Masa Kerja / UPMK (Dasar ${baseUpmk} bln x ${upmkMult}x)`, val: formatRp(upmkNominal) });
+        rows.push({ label: `Uang Penggantian Hak / UPH (Sisa Cuti ${sisaCuti} hr + Ongkos)`, val: formatRp(totalUph) });
+        if (uangPisah > 0) rows.push({ label: "Uang Pisah (Sesuai PK/PP/PKB)", val: formatRp(uangPisah) });
+        if (tambahanBumn > 0) rows.push({ label: "Penghargaan Purna Bakti / Tali Asih BUMN-BUMD", val: formatRp(tambahanBumn) });
+        rows.push({ label: "Total Paket Pesangon Bruto", val: formatRp(totalBruto), total: true, cls: "pos" });
+
+        const komponenPesangonUtama = upNominal + upmkNominal + uangPisah + tambahanBumn;
+        if (komponenPesangonUtama > 0) {
+          taxSchemeLabel = "PPh 21 Final Pesangon (PP 68/2009)";
+          const finalTax = calculatePph21FinalPesangon(totalBruto, hasValidNik);
+          totalTax = finalTax.totalTax;
+          rows.push({ sec: "B. Lapisan PPh 21 Final Pesangon (PP No. 68 Tahun 2009)" });
+          finalTax.layers.forEach(l => {
+            rows.push({ label: `${l.label} — DPP ${formatRp(l.dpp)}`, val: "- " + formatRp(l.tax), cls: "neg" });
+          });
+          rows.push({ label: "Total Potongan PPh 21 Final", val: "- " + formatRp(totalTax), total: true, cls: "neg" });
+        } else {
+          taxSchemeLabel = "PPh 21 TER Bulanan atas UPH (PP 58/2023)";
+          const terUph = getTerRate(ptkpStatus, upahTetap + totalUph);
+          const terBase = getTerRate(ptkpStatus, upahTetap);
+          totalTax = Math.max(0, Math.round((upahTetap + totalUph) * terUph.rate) - Math.round(upahTetap * terBase.rate));
+          rows.push({ sec: "B. PPh 21 TER atas UPH Mandiri (Tanpa Pesangon)" });
+          rows.push({ label: `Selisih PPh 21 TER Kat. ${terUph.category} atas UPH`, val: "- " + formatRp(totalTax), total: true, cls: "neg" });
+        }
+      }
+
+      const thp = Math.max(0, totalBruto - totalTax);
+
+      document.getElementById("sevTaxSchemeBadge").textContent = taxSchemeLabel;
+      document.getElementById("sevThpDisplay").textContent = formatRp(thp);
+      document.getElementById("sevBrutoDisplay").textContent = formatRp(totalBruto);
+      document.getElementById("sevTaxDisplay").textContent = formatRp(totalTax);
+      document.getElementById("sevTerbilang").textContent = "Terbilang: " + terbilang(thp);
+
+      renderAccTable("severanceResultBody", rows);
+
+      document.getElementById("severanceLegalBox").innerHTML =
+        `<strong>Dasar Hukum (${profile.label}):</strong><ul>` +
+        profile.legalBasis.map(b => `<li>${b}</li>`).join("") + `</ul>`;
+
+      latestSeveranceData = {
+        type: "SEVERANCE",
+        subType: contractStatus,
+        empName,
+        profileKey,
+        profileLabel: profile.label,
+        ptkpStatus,
+        bruto: totalBruto,
+        potongan: totalTax,
+        thp,
+        terbilangText: terbilang(thp),
+        rows,
+        legalBasis: profile.legalBasis
+      };
+    }
+
+    function renderAccTable(tbodyId, rows) {
+      const tbody = document.getElementById(tbodyId);
+      tbody.innerHTML = rows.map(r => {
+        if (r.sec) return `<tr class="sec-head"><td colspan="2">${r.sec}</td></tr>`;
+        const trClass = r.total ? "total-row" : "";
+        const tdClass = "amt " + (r.cls || "");
+        return `<tr class="${trClass}"><td>${r.label}</td><td class="${tdClass}">${r.val}</td></tr>`;
+      }).join("");
+    }
+
+    /* =========================================================================
+       4. UI CONTROLLERS & SYNCHRONIZATION
+       ========================================================================= */
+    function handleEntityChange() {
+      const key = document.getElementById("globalEntityProfile").value;
+      const profile = ENTITY_PROFILES[key];
+
+      document.getElementById("payrollEntityTag").textContent = profile.shortTag;
+      document.getElementById("sevSchemeTag").textContent = profile.shortTag;
+
+      const showOptProg = (key === "SWASTA_MIKRO_KECIL" || key === "NON_ASN_BLUD");
+      document.getElementById("payrollOptionalPrograms").hidden = !showOptProg;
+      document.getElementById("groupJkkRate").hidden = (key === "ASN_PNS");
+      document.getElementById("rowAsnTaxDtp").hidden = !(key === "ASN_PNS" || key === "ASN_PPPK");
+
+      document.getElementById("asnWarningBanner").hidden = profile.severanceEligible;
+      document.getElementById("severanceMainGrid").hidden = !profile.severanceEligible;
+      if (!profile.severanceEligible) {
+        document.getElementById("asnWarningText").textContent = profile.asnMessage;
+      }
+
+      document.getElementById("panelMikroKecil").hidden = (key !== "SWASTA_MIKRO_KECIL");
+      document.getElementById("panelBumnBumd").hidden = (key !== "BUMN_BUMD");
+      document.getElementById("panelBludPerkada").hidden = (key !== "NON_ASN_BLUD");
+
+      recalculateAll();
+    }
+
+    function setContractStatus(mode) {
+      contractStatus = mode;
+      document.getElementById("btnModePkwtt").classList.toggle("active", mode === "PKWTT");
+      document.getElementById("btnModePkwt").classList.toggle("active", mode === "PKWT");
+      document.getElementById("pkwttFieldsGroup").hidden = (mode !== "PKWTT");
+      document.getElementById("pkwtFieldsGroup").hidden = (mode !== "PKWT");
+      runSeverance();
+    }
+
+    function togglePkwtDini() {
+      document.getElementById("pkwtSisaBulanGroup").hidden = !document.getElementById("pkwtPhkDini").checked;
+    }
+
+    function togglePkwtTaxMode() {
+      const isLast = document.getElementById("pkwtTaxMode").value === "MASA_PAJAK_TERAKHIR";
+      document.getElementById("pkwtBulanKerjaGroup").hidden = !isLast;
+      document.getElementById("pkwtAkumBrutoGroup").hidden = !isLast;
+      document.getElementById("pkwtPphPrevGroup").hidden = !isLast;
+    }
+
+    function toggleCreatorModal(show) {
+      document.getElementById("creatorModal").hidden = !show;
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll(".tab-view").forEach(v => v.hidden = true);
+      document.getElementById("view-" + tabName).hidden = false;
+
+      document.querySelectorAll(".nav-tab, .mob-tab").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === tabName);
+      });
+
+      if (tabName === "history") renderHistoryTable();
+    }
+
+    function recalculateAll() {
+      runPayroll();
+      runSeverance();
+    }
+
+    /* =========================================================================
+       5. OFFLINE STORAGE ENGINE (IndexedDB + LocalStorage Fallback)
+       ========================================================================= */
+    const DB_NAME = "SimulatorKetenagakerjaanID_DB";
+    const STORE_NAME = "simulations";
+    let historyCache = [];
+
+    function openDb() {
+      return new Promise((resolve, reject) => {
+        if (!window.indexedDB) return reject("No IDB");
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: "id" });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function loadHistory() {
+      try {
+        const db = await openDb();
+        historyCache = await new Promise((res, rej) => {
+          const tx = db.transaction(STORE_NAME, "readonly");
+          const req = tx.objectStore(STORE_NAME).getAll();
+          req.onsuccess = () => res(req.result || []);
+          req.onerror = () => rej(req.error);
+        });
+      } catch {
+        historyCache = JSON.parse(localStorage.getItem(DB_NAME) || "[]");
+      }
+      historyCache.sort((a, b) => b.timestamp - a.timestamp);
+      updateHistoryBadges();
+      renderHistoryTable();
+    }
+
+    async function saveCurrentSimulation(type) {
+      const payload = type === "PAYROLL" ? latestPayrollData : latestSeveranceData;
+      if (!payload) {
+        showToast("Tidak ada data valid untuk disimpan.");
+        return;
+      }
+      const record = {
+        id: "SIM-" + Date.now(),
+        timestamp: Date.now(),
+        dateStr: new Date().toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" }),
+        ...payload
+      };
+
+      try {
+        const db = await openDb();
+        await new Promise((res, rej) => {
+          const tx = db.transaction(STORE_NAME, "readwrite");
+          tx.objectStore(STORE_NAME).put(record);
+          tx.oncomplete = () => res();
+          tx.onerror = () => rej(tx.error);
+        });
+      } catch {
+        historyCache.unshift(record);
+        localStorage.setItem(DB_NAME, JSON.stringify(historyCache));
+      }
+      await loadHistory();
+      showToast("Simulasi berhasil disimpan ke penyimpanan lokal!");
+    }
+
+    async function deleteHistoryItem(id) {
+      try {
+        const db = await openDb();
+        await new Promise((res, rej) => {
+          const tx = db.transaction(STORE_NAME, "readwrite");
+          tx.objectStore(STORE_NAME).delete(id);
+          tx.oncomplete = () => res();
+          tx.onerror = () => rej(tx.error);
+        });
+      } catch {
+        historyCache = historyCache.filter(item => item.id !== id);
+        localStorage.setItem(DB_NAME, JSON.stringify(historyCache));
+      }
+      await loadHistory();
+      showToast("Riwayat dihapus.");
+    }
+
+    async function clearAllHistory() {
+      if (!confirm("Hapus seluruh riwayat simulasi tersimpan?")) return;
+      try {
+        const db = await openDb();
+        await new Promise((res, rej) => {
+          const tx = db.transaction(STORE_NAME, "readwrite");
+          tx.objectStore(STORE_NAME).clear();
+          tx.oncomplete = () => res();
+          tx.onerror = () => rej(tx.error);
+        });
+      } catch {
+        localStorage.removeItem(DB_NAME);
+      }
+      await loadHistory();
+      showToast("Semua riwayat dibersihkan.");
+    }
+
+    function updateHistoryBadges() {
+      document.getElementById("historyCountBadge").textContent = historyCache.length;
+      document.getElementById("mobHistoryCount").textContent = historyCache.length;
+    }
+
+    function renderHistoryTable() {
+      const q = (document.getElementById("historySearch")?.value || "").toLowerCase();
+      const filter = document.getElementById("historyFilterType")?.value || "ALL";
+      const tbody = document.getElementById("historyTableBody");
+
+      const filtered = historyCache.filter(item => {
+        if (filter !== "ALL" && item.type !== filter) return false;
+        if (!q) return true;
+        return (
+          item.empName.toLowerCase().includes(q) ||
+          item.profileLabel.toLowerCase().includes(q) ||
+          item.type.toLowerCase().includes(q)
+        );
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#64748B;padding:18px;">Belum ada riwayat simulasi tersimpan.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => `
+        <tr>
+          <td>${item.dateStr}</td>
+          <td><strong>${item.empName}</strong><br><span class="hint">PTKP: ${item.ptkpStatus}</span></td>
+          <td>${item.profileLabel}</td>
+          <td>${item.type === "PAYROLL" ? "Payroll & BPJS" : "Pesangon / " + (item.subType || "PKWTT")}</td>
+          <td class="amt">${formatRp(item.bruto)}</td>
+          <td class="amt pos"><strong>${formatRp(item.thp)}</strong></td>
+          <td style="white-space:nowrap;">
+            <button class="btn btn-outline btn-sm" onclick="printSavedItem('${item.id}')">PDF</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteHistoryItem('${item.id}')">Hapus</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    /* =========================================================================
+       6. EXPORT ENGINE (PRINT / PDF A4 & EXCEL .XLSX / .XLS + WATERMARK)
+       ========================================================================= */
+    function buildPrintHtml(data) {
+      const title = data.type === "PAYROLL"
+        ? "SLIP SIMULASI PAYROLL, BPJS & PPH 21"
+        : `RINCIAN SIMULASI ${data.subType === "PKWT" ? "UANG KOMPENSASI PKWT" : "UANG PESANGON & PHK"}`;
+
+      const tableRows = data.rows.map(r => {
+        if (r.sec) return `<tr><td colspan="2" style="background:#F1F5F9;font-weight:700;">${r.sec}</td></tr>`;
+        const bold = r.total ? "font-weight:700;background:#F8FAFC;" : "";
+        return `<tr style="${bold}"><td>${r.label}</td><td style="text-align:right;">${r.val}</td></tr>`;
+      }).join("");
+
+      return `
+        <div class="print-header">
+          <div>
+            <div class="print-title">${title}</div>
+            <div style="font-size:9.5pt;color:#475569;">Simulator Ketenagakerjaan Indonesia — Dokumen Perhitungan Normatif</div>
+          </div>
+          <div style="font-size:9pt;text-align:right;">Dicetak: ${new Date().toLocaleDateString("id-ID", { dateStyle: "long" })}</div>
+        </div>
+
+        <table class="print-meta">
+          <tr><td width="170"><strong>Nama Pegawai</strong></td><td>: ${data.empName}</td></tr>
+          <tr><td><strong>Profil Instansi</strong></td><td>: ${data.profileLabel}</td></tr>
+          <tr><td><strong>Status PTKP</strong></td><td>: ${data.ptkpStatus}</td></tr>
+          <tr><td><strong>Take Home Pay Bersih</strong></td><td>: <strong>${formatRp(data.thp)}</strong></td></tr>
+          <tr><td><strong>Terbilang</strong></td><td>: <em>${data.terbilangText}</em></td></tr>
+        </table>
+
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">Komponen Perhitungan</th>
+              <th style="text-align:right;width:190px;">Nominal (Rp)</th>
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+
+        <div style="font-size:8.5pt;color:#334155;border:1px solid #CBD5E1;padding:8px;border-radius:4px;">
+          <strong>Dasar Hukum Acuan:</strong>
+          <ul style="margin-left:16px;margin-top:3px;">
+            ${data.legalBasis.map(l => `<li>${l}</li>`).join("")}
+          </ul>
+        </div>
+
+        <div class="print-sign">
+          <div>Mengetahui,<br>Bagian SDM / Keuangan<br><br><br><br>( _______________________ )</div>
+          <div>Diterima / Disetujui oleh,<br>Pegawai / Pekerja<br><br><br><br>( ${data.empName} )</div>
+        </div>
+
+        <div style="margin-top:22px; padding-top:6px; border-top:1px dashed #CBD5E1; font-size:8pt; color:#64748B; text-align:center;">
+          Dokumen ini dihasilkan menggunakan <strong>Simulator Ketenagakerjaan Indonesia</strong> — Karya <strong>Dul Muid (Bang Dul)</strong>
+        </div>
+      `;
+    }
+
+    function printReport(type) {
+      const data = type === "PAYROLL" ? latestPayrollData : latestSeveranceData;
+      if (!data) {
+        showToast("Tidak ada data untuk dicetak.");
+        return;
+      }
+      document.getElementById("printArea").innerHTML = buildPrintHtml(data);
+      window.print();
+    }
+
+    function printSavedItem(id) {
+      const item = historyCache.find(x => x.id === id);
+      if (!item) return;
+      document.getElementById("printArea").innerHTML = buildPrintHtml(item);
+      window.print();
+    }
+
+    function exportExcel(type) {
+      const data = type === "PAYROLL" ? latestPayrollData : latestSeveranceData;
+      if (!data) {
+        showToast("Tidak ada data untuk diekspor.");
+        return;
+      }
+
+      const fileName = `Simulasi_${data.type}_${data.empName.replace(/\s+/g, "_")}_${Date.now()}`;
+
+      if (window.XLSX) {
+        const aoa = [
+          ["SIMULATOR KETENAGAKERJAAN INDONESIA — KARYA DUL MUID (BANG DUL)"],
+          ["Nama Pegawai", data.empName],
+          ["Profil Instansi", data.profileLabel],
+          ["Status PTKP", data.ptkpStatus],
+          ["Take Home Pay Bersih", data.thp],
+          ["Terbilang", data.terbilangText],
+          [],
+          ["Komponen Perhitungan", "Nominal"]
+        ];
+        data.rows.forEach(r => {
+          if (r.sec) aoa.push([r.sec, ""]);
+          else aoa.push([r.label, r.val]);
+        });
+        aoa.push([], ["Dasar Hukum Acuan"]);
+        data.legalBasis.forEach(l => aoa.push([l]));
+        aoa.push([], ["Dibuat dengan Simulator Ketenagakerjaan Indonesia — Karya Dul Muid (Bang Dul)"]);
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+        ws["!cols"] = [{ wch: 62 }, { wch: 24 }];
+        XLSX.utils.book_append_sheet(wb, ws, "Hasil_Simulasi");
+        XLSX.writeFile(wb, fileName + ".xlsx");
+        showToast("File Excel (.xlsx) berhasil diunduh.");
+      } else {
+        const htmlTable = buildPrintHtml(data);
+        const blob = new Blob([`<html><head><meta charset="UTF-8"></head><body>${htmlTable}</body></html>`], {
+          type: "application/vnd.ms-excel"
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName + ".xls";
+        a.click();
+        showToast("File Excel offline (.xls) berhasil diunduh.");
+      }
+    }
+
+    /* =========================================================================
+       7. PWA SERVICE WORKER & INSTALL PROMPT HANDLER
+       ========================================================================= */
+    let deferredInstallPrompt = null;
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      document.getElementById("btnInstallPwa").hidden = false;
+    });
+
+    async function installPwaApp() {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      if (outcome === "accepted") {
+        document.getElementById("btnInstallPwa").hidden = true;
+        showToast("Aplikasi sedang diinstal ke perangkat...");
+      }
+      deferredInstallPrompt = null;
+    }
+
+    function updateNetworkBadge() {
+      const dot = document.getElementById("netDot");
+      const txt = document.getElementById("netText");
+      if (navigator.onLine) {
+        dot.classList.remove("offline");
+        txt.textContent = "Offline Ready";
+      } else {
+        dot.classList.add("offline");
+        txt.textContent = "Mode Offline";
+      }
+    }
+
+    function registerOfflineServiceWorker() {
+      if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      }
+    }
+
+    /* =========================================================================
+       8. INITIALIZATION
+       ========================================================================= */
+    window.addEventListener("online", updateNetworkBadge);
+    window.addEventListener("offline", updateNetworkBadge);
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const reasonSel = document.getElementById("phkReasonKey");
+      Object.entries(PHK_REASONS_PP35).forEach(([key, obj]) => {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = obj.label;
+        reasonSel.appendChild(opt);
+      });
+
+      updateNetworkBadge();
+      registerOfflineServiceWorker();
+      handleEntityChange();
+      loadHistory();
+    });
+  </script>
+</body>
+</html>

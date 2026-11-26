@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#064E3B" />
+  <meta name="theme-color" content="#042F2E" />
   <meta name="author" content="Dul Muid (Bang Dul)" />
-  <meta name="description" content="Simulator Ketenagakerjaan Indonesia — Payroll, BPJS, PT Taspen, Pesangon PP 35/2021, Kompensasi PKWT & PPh 21. Karya Dul Muid (Bang Dul)." />
+  <meta name="description" content="SimKerja ID — Simulator Ketenagakerjaan Indonesia: Payroll, BPJS, PT Taspen, Pesangon PP 35/2021, Kompensasi PKWT & PPh 21. Karya Dul Muid (Bang Dul)." />
 
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
   <link rel="apple-touch-icon" href="icon-192.png" />
@@ -13,21 +13,34 @@
 
   <title>SimKerja ID — Simulator Ketenagakerjaan Indonesia</title>
 
-  <!-- Font Plus Jakarta Sans opsional (otomatis fallback ke system font saat offline) -->
+  <!-- Font Plus Jakarta Sans (otomatis fallback ke system font saat offline) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-  <!-- SheetJS opsional untuk ekspor .xlsx native (otomatis fallback ke .xls offline saat tanpa internet) -->
+  <!-- SheetJS opsional untuk ekspor .xlsx native (otomatis fallback ke .xls offline) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 
   <style>
     :root {
+      /* Brand & Obsidian Emerald Palette */
+      --sidebar-bg: #042F2E;
+      --sidebar-hover: rgba(255, 255, 255, 0.08);
+      --sidebar-active: rgba(16, 185, 129, 0.18);
       --primary: #065F46;
-      --primary-dark: #064E3B;
+      --primary-dark: #042F2E;
+      --primary-accent: #10B981;
       --primary-soft: #ECFDF5;
       --primary-border: #A7F3D0;
-      --bg: #F3F5F7;
+
+      /* Distinct Tinted Input Surface */
+      --input-bg: #EAF3F0;
+      --input-bg-hover: #E1EFEA;
+      --input-border: #B6D2C6;
+      --input-accent-left: #065F46;
+
+      /* Surfaces & Neutrals */
+      --bg-studio: #F2F5F4;
       --surface: #FFFFFF;
       --surface-subtle: #F8FAFC;
       --text: #0F172A;
@@ -35,16 +48,25 @@
       --text-muted: #64748B;
       --border: #E2E8F0;
       --border-strong: #CBD5E1;
+
+      /* Semantic Colors */
       --danger: #B91C1C;
       --danger-bg: #FEF2F2;
       --warning: #92400E;
       --warning-bg: #FFFBEB;
+      --gold: #FACC15;
+      --amber-bar: #EAB308;
+      --teal-bar: #0D9488;
+
+      /* Geometry & Elevation */
+      --radius-xl: 16px;
       --radius-lg: 14px;
       --radius-md: 10px;
       --radius-sm: 8px;
       --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
-      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
-      --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+      --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.05);
+      --shadow-hero: 0 10px 25px -5px rgba(4, 47, 46, 0.28);
+      --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.12);
     }
 
     * {
@@ -56,298 +78,494 @@
     }
 
     body {
-      background: var(--bg);
+      background: var(--bg-studio);
       color: var(--text);
       font-size: 14px;
       line-height: 1.5;
-      padding-bottom: 126px;
+      min-height: 100vh;
     }
 
     /* =========================================================================
-       HEADER (CLEAN LIGHT ENTERPRISE BAR — ANTI OVERLAP)
+       APP SHELL: DESKTOP LEFT SIDEBAR + MAIN WORKSPACE
        ========================================================================= */
-    .app-header {
-      background: var(--surface);
-      border-top: 3.5px solid var(--primary-dark);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 248px;
+      background: var(--sidebar-bg);
+      color: #ECFDF5;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 14px;
       position: sticky;
       top: 0;
-      z-index: 45;
-      box-shadow: var(--shadow-xs);
+      height: 100vh;
+      flex-shrink: 0;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 40;
     }
 
-    .header-inner {
-      max-width: 1200px;
-      margin: 0 auto;
+    .sidebar-brand {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
+      gap: 11px;
+      padding: 4px 8px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 16px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1 1 auto;
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .brand-icon {
+    .sidebar-logo {
       width: 38px;
       height: 38px;
-      border-radius: 9px;
-      border: 1px solid var(--border);
-      background: var(--surface-subtle);
+      border-radius: 10px;
+      background: #FFFFFF;
+      padding: 2px;
       display: grid;
       place-items: center;
       flex-shrink: 0;
       overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     }
 
-    .brand-icon img {
+    .sidebar-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .sidebar-brand-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .sidebar-brand-sub {
+      font-size: 11px;
+      color: #A7F3D0;
+      opacity: 0.85;
+      font-weight: 500;
+    }
+
+    .sidebar-section-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: rgba(167, 243, 208, 0.6);
+      padding: 0 10px 8px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .side-tab {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: rgba(236, 253, 245, 0.78);
+      padding: 11px 12px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.16s ease;
+      position: relative;
+    }
+
+    .side-tab-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .side-tab:hover {
+      background: var(--sidebar-hover);
+      color: #FFFFFF;
+    }
+
+    .side-tab.active {
+      background: var(--sidebar-active);
+      color: #FFFFFF;
+      font-weight: 700;
+      box-shadow: inset 3px 0 0 #34D399;
+    }
+
+    .side-badge {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ECFDF5;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .side-tab.active .side-badge {
+      background: #10B981;
+      color: #042F2E;
+    }
+
+    .sidebar-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(167, 243, 208, 0.18);
+      font-size: 12px;
+      font-weight: 600;
+      color: #ECFDF5;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+      flex-shrink: 0;
+    }
+
+    .status-dot.offline {
+      background: #F59E0B;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+    }
+
+    /* =========================================================================
+       WORKSPACE & TOP HEADER (DESKTOP + MOBILE SAFE LAYOUT)
+       ========================================================================= */
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 35;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .mobile-brand-logo {
+      display: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-subtle);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .mobile-brand-logo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .brand-text {
+    .topbar-titles {
       min-width: 0;
       overflow: hidden;
     }
 
-    .brand-title {
+    .topbar-title-desktop {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.25px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-sub-desktop {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-title-mobile {
+      display: none;
       font-size: 15.5px;
       font-weight: 800;
       color: var(--text);
       letter-spacing: -0.2px;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1.25;
     }
 
-    .title-desktop { display: inline; }
-    .title-mobile { display: none; }
-
-    .brand-sub {
-      font-size: 11.5px;
-      color: var(--text-muted);
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .header-actions {
+    .topbar-right {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       flex-shrink: 0;
     }
 
-    .chip-status {
+    .btn-install-topbar {
+      background: var(--gold);
+      color: #0F172A;
+      border: 1px solid #EAB308;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 800;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: var(--primary-soft);
-      border: 1px solid var(--primary-border);
-      color: var(--primary-dark);
-      font-size: 11px;
-      font-weight: 700;
+      gap: 6px;
+      cursor: pointer;
       white-space: nowrap;
+      box-shadow: var(--shadow-xs);
+      transition: transform 0.15s, background 0.15s;
     }
 
-    .dot-status {
+    .btn-install-topbar:hover {
+      background: #FDE047;
+    }
+
+    .btn-install-topbar[hidden] {
+      display: none !important;
+    }
+
+    .creator-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .creator-pill:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+    }
+
+    .creator-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--sidebar-bg);
+      color: #FFFFFF;
+      font-size: 10px;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .mobile-dot-indicator {
+      display: none;
       width: 7px;
       height: 7px;
       border-radius: 50%;
       background: #10B981;
-      flex-shrink: 0;
-    }
-
-    .dot-status.offline {
-      background: #F59E0B;
-    }
-
-    .chip-creator {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: var(--surface-subtle);
-      border: 1px solid var(--border-strong);
-      color: var(--text-secondary);
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s;
-    }
-
-    .chip-creator:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: var(--primary-soft);
     }
 
     /* =========================================================================
-       DESKTOP NAVIGATION
+       CONTENT CONTAINER & DEDICATED MOBILE INSTALL BANNER
        ========================================================================= */
-    .desktop-nav {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 16px;
-    }
-
-    .desktop-nav-inner {
-      max-width: 1200px;
+    .main-content {
+      max-width: 1180px;
+      width: 100%;
       margin: 0 auto;
-      display: flex;
-      gap: 6px;
+      padding: 18px 20px 40px;
     }
 
-    .nav-tab {
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      padding: 12px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      border-bottom: 2.5px solid transparent;
-      transition: all 0.15s;
-    }
-
-    .nav-tab:hover {
-      color: var(--primary);
-    }
-
-    .nav-tab.active {
-      color: var(--primary-dark);
-      border-bottom-color: var(--primary-dark);
-      font-weight: 700;
-    }
-
-    /* =========================================================================
-       MAIN CONTAINER & DEDICATED PWA INSTALL BANNER
-       ========================================================================= */
-    .container {
-      max-width: 1200px;
-      margin: 14px auto;
-      padding: 0 14px;
-    }
-
-    .install-banner[hidden] {
+    .mobile-install-banner[hidden] {
       display: none !important;
     }
 
-    .install-banner {
-      background: linear-gradient(135deg, #064E3B 0%, #065F46 100%);
-      color: #fff;
+    .mobile-install-banner {
+      background: linear-gradient(135deg, #042F2E 0%, #065F46 100%);
+      color: #FFFFFF;
       border-radius: var(--radius-md);
       padding: 11px 14px;
       margin-bottom: 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       box-shadow: var(--shadow-sm);
     }
 
-    .install-banner-info {
+    .mib-left {
       display: flex;
       align-items: center;
       gap: 10px;
       min-width: 0;
     }
 
-    .install-banner-info img {
-      width: 34px;
-      height: 34px;
+    .mib-left img {
+      width: 32px;
+      height: 32px;
       border-radius: 8px;
       background: #fff;
       flex-shrink: 0;
     }
 
-    .install-banner-title {
-      font-size: 13px;
+    .mib-title {
+      font-size: 12.5px;
       font-weight: 700;
       line-height: 1.25;
     }
 
-    .install-banner-desc {
-      font-size: 11.5px;
-      opacity: 0.88;
+    .mib-sub {
+      font-size: 11px;
+      color: #A7F3D0;
     }
 
-    .install-banner-btns {
+    .mib-actions {
       display: flex;
       align-items: center;
       gap: 6px;
       flex-shrink: 0;
     }
 
-    .btn-install-now {
-      background: #FACC15;
+    .mib-btn-yes {
+      background: var(--gold);
       color: #0F172A;
       border: none;
       border-radius: 7px;
-      padding: 7px 12px;
-      font-size: 12px;
+      padding: 6px 11px;
+      font-size: 11.5px;
       font-weight: 800;
       cursor: pointer;
     }
 
-    .btn-install-later {
-      background: rgba(255,255,255,0.14);
-      color: #fff;
+    .mib-btn-no {
+      background: rgba(255, 255, 255, 0.14);
+      color: #FFFFFF;
       border: none;
       border-radius: 7px;
-      padding: 7px 10px;
-      font-size: 12px;
+      padding: 6px 9px;
+      font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
     }
 
     /* =========================================================================
-       ENTITY PROFILE & IDENTITY BAR
+       CARDS & BENTO GRID
        ========================================================================= */
-    .entity-bar {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 14px 16px;
-      margin-bottom: 16px;
-      box-shadow: var(--shadow-xs);
-      display: grid;
-      grid-template-columns: 1.35fr 1fr;
-      gap: 12px;
-      align-items: end;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: 16px;
-      align-items: start;
-    }
-
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 16px;
+      padding: 18px;
       box-shadow: var(--shadow-xs);
       margin-bottom: 16px;
+    }
+
+    .entity-card {
+      padding: 16px 18px;
+    }
+
+    .entity-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr 1fr;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .preset-strip {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+      padding-top: 11px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .preset-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+
+    .preset-chip {
+      border: 1px solid var(--border-strong);
+      background: var(--surface-subtle);
+      color: var(--text-secondary);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .preset-chip:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+    }
+
+    .preset-chip.reset-chip {
+      border-color: #FECACA;
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .preset-chip.reset-chip:hover {
+      background: #FEE2E2;
+      border-color: #F87171;
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 1.04fr 0.96fr;
+      gap: 18px;
+      align-items: start;
     }
 
     .card-header {
@@ -355,18 +573,20 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding-bottom: 11px;
+      padding-bottom: 12px;
       margin-bottom: 14px;
       border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
     }
 
     .card-title {
       font-size: 14.5px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text);
       display: flex;
       align-items: center;
       gap: 8px;
+      letter-spacing: -0.15px;
     }
 
     .card-title svg {
@@ -377,21 +597,21 @@
     .pill-tag {
       font-size: 11px;
       font-weight: 700;
-      padding: 3px 9px;
-      border-radius: 6px;
-      background: var(--surface-subtle);
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      color: var(--primary-dark);
       white-space: nowrap;
     }
 
     /* =========================================================================
-       FORM CONTROLS & PREFIX CURRENCY INPUTS
+       DISTINCT CONTRAST TINTED INPUTS
        ========================================================================= */
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 13px;
     }
 
     .form-group {
@@ -406,7 +626,7 @@
 
     label {
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-secondary);
     }
 
@@ -419,20 +639,41 @@
     input[type="number"],
     select {
       width: 100%;
-      height: 40px;
-      padding: 0 11px;
-      border: 1px solid var(--border-strong);
+      height: 42px;
+      padding: 0 12px;
+      background-color: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-left: 3.5px solid var(--input-accent-left);
       border-radius: var(--radius-sm);
       font-size: 13.5px;
+      font-weight: 600;
       color: var(--text);
-      background: var(--surface);
-      transition: border-color 0.15s, box-shadow 0.15s;
+      transition: background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
-    input:focus, select:focus {
+    input[type="text"]::placeholder,
+    input[type="number"]::placeholder {
+      color: #64748B;
+      font-weight: 500;
+      opacity: 0.78;
+    }
+
+    input[type="text"]:hover,
+    input[type="number"]:hover,
+    select:hover {
+      background-color: var(--input-bg-hover);
+      border-color: #8EB8A8;
+      border-left-color: var(--input-accent-left);
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
       outline: none;
+      background-color: #FFFFFF;
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(6, 95, 70, 0.12);
+      border-left: 3.5px solid var(--primary-accent);
+      box-shadow: 0 0 0 3px rgba(6, 95, 70, 0.14);
     }
 
     .currency-wrap {
@@ -443,49 +684,32 @@
 
     .currency-prefix {
       position: absolute;
-      left: 11px;
+      left: 13px;
       font-size: 12.5px;
-      font-weight: 700;
-      color: var(--text-muted);
+      font-weight: 800;
+      color: var(--primary);
       pointer-events: none;
     }
 
     .currency-wrap input {
-      padding-left: 34px;
+      padding-left: 36px;
       text-align: right;
       font-variant-numeric: tabular-nums;
       font-weight: 700;
     }
 
-    .check-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 9px;
-      padding: 6px 0;
-      cursor: pointer;
-      font-size: 12.5px;
-      color: var(--text-secondary);
-    }
-
-    .check-row input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      margin-top: 2px;
-      accent-color: var(--primary-dark);
-      flex-shrink: 0;
-    }
-
+    /* Accordion / Sub-panel */
     .sub-panel {
       background: var(--surface-subtle);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 12px;
-      margin-top: 12px;
+      padding: 12px 13px;
+      margin-top: 13px;
     }
 
     .sub-panel-title {
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--primary-dark);
       margin-bottom: 8px;
       display: flex;
@@ -493,89 +717,201 @@
       gap: 6px;
     }
 
-    /* =========================================================================
-       ALERTS & KPI SUMMARY CARDS
-       ========================================================================= */
-    .alert {
-      padding: 12px 14px;
-      border-radius: var(--radius-md);
-      font-size: 12.5px;
-      margin-bottom: 14px;
+    .check-row {
       display: flex;
-      gap: 10px;
       align-items: flex-start;
+      gap: 9px;
+      padding: 5px 0;
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
     }
 
-    .alert-warning {
-      background: var(--warning-bg);
-      border: 1px solid #FDE68A;
-      color: var(--warning);
+    .check-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      accent-color: var(--primary);
+      flex-shrink: 0;
+      cursor: pointer;
     }
 
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+    /* =========================================================================
+       HERO RESULT CARD (DEEP OBSIDIAN EMERALD + PROPORTION BAR)
+       ========================================================================= */
+    .hero-card {
+      background: linear-gradient(145deg, #042F2E 0%, #064E3B 58%, #065F46 100%);
+      color: #FFFFFF;
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      box-shadow: var(--shadow-hero);
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.16) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
       gap: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 6px;
     }
 
-    .kpi-box {
-      background: var(--surface-subtle);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 11px 12px;
-    }
-
-    .kpi-box.highlight {
-      background: linear-gradient(135deg, #064E3B 0%, #065F46 100%);
-      color: #fff;
-      border-color: #064E3B;
-      grid-column: 1 / -1;
-      padding: 14px;
-    }
-
-    .kpi-label {
-      font-size: 11.5px;
-      font-weight: 600;
-      opacity: 0.85;
-      margin-bottom: 3px;
-    }
-
-    .kpi-value {
-      font-size: 15.5px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: -0.2px;
-    }
-
-    .kpi-box.highlight .kpi-value {
-      font-size: 22px;
-    }
-
-    .terbilang-box {
-      background: var(--primary-soft);
-      border: 1px solid var(--primary-border);
-      padding: 9px 12px;
-      border-radius: var(--radius-sm);
+    .hero-eyebrow {
       font-size: 12px;
       font-weight: 600;
+      color: #A7F3D0;
+      letter-spacing: 0.2px;
+    }
+
+    .hero-pill-btn {
+      background: rgba(255, 255, 255, 0.11);
+      color: #ECFDF5;
+      border: 1px solid rgba(167, 243, 208, 0.3);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .hero-pill-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .hero-amount {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+
+    .hero-terbilang {
+      font-size: 11.5px;
+      color: rgba(236, 253, 245, 0.85);
       font-style: italic;
-      color: var(--primary-dark);
       margin-bottom: 14px;
     }
 
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .hero-metric-box {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+    }
+
+    .hero-metric-label {
+      font-size: 11px;
+      color: #A7F3D0;
+      margin-bottom: 2px;
+    }
+
+    .hero-metric-val {
+      font-size: 14.5px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: #FFFFFF;
+    }
+
+    /* Stacked Proportion Bar Card */
+    .proportion-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-xs);
+      margin-bottom: 16px;
+    }
+
+    .prop-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .prop-track {
+      width: 100%;
+      height: 12px;
+      background: #E2E8F0;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      gap: 2px;
+      margin-bottom: 10px;
+    }
+
+    .prop-seg {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .prop-seg-thp { background: #042F2E; }
+    .prop-seg-bpjs { background: #0D9488; }
+    .prop-seg-tax { background: #EAB308; }
+    .prop-seg-other { background: #94A3B8; }
+
+    .prop-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .prop-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .prop-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
     /* =========================================================================
-       ACCOUNTING TABLES
+       ITEMIZED PAYSLIP TABLE & ACTION BUTTONS
        ========================================================================= */
     .acc-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 12.5px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .acc-table th, .acc-table td {
-      padding: 8px 9px;
+      padding: 8.5px 10px;
       border-bottom: 1px solid var(--border);
     }
 
@@ -593,12 +929,12 @@
       text-align: right;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .acc-table tr.sec-head td {
       background: #F1F5F9;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text);
       font-size: 11.5px;
       padding-top: 9px;
@@ -607,29 +943,26 @@
 
     .acc-table tr.total-row td {
       font-weight: 800;
-      background: var(--surface-subtle);
-      border-top: 1.5px solid var(--border-strong);
-      border-bottom: 2px solid #94A3B8;
-      color: var(--text);
+      background: var(--primary-soft);
+      border-top: 1.5px solid var(--primary-border);
+      border-bottom: 2px solid var(--primary);
+      color: var(--primary-dark);
     }
 
     .neg { color: var(--danger) !important; }
     .pos { color: var(--primary) !important; }
 
-    /* =========================================================================
-       BUTTONS & SEGMENTED CONTROLS
-       ========================================================================= */
     .btn-row {
       display: grid;
-      grid-template-columns: 1.2fr 1fr 1fr;
+      grid-template-columns: 1.25fr 1fr 1fr;
       gap: 8px;
-      margin-top: 12px;
+      margin-top: 14px;
     }
 
     .btn {
       border: none;
       border-radius: var(--radius-sm);
-      height: 38px;
+      height: 40px;
       padding: 0 12px;
       font-size: 12.5px;
       font-weight: 700;
@@ -642,10 +975,10 @@
     }
 
     .btn:active { transform: scale(0.98); }
-    .btn-primary { background: var(--primary-dark); color: #fff; }
+    .btn-primary { background: var(--sidebar-bg); color: #FFFFFF; }
     .btn-primary:hover { background: var(--primary); }
     .btn-outline { background: var(--surface); border: 1px solid var(--border-strong); color: var(--text-secondary); }
-    .btn-outline:hover { background: var(--surface-subtle); border-color: #94A3B8; }
+    .btn-outline:hover { background: var(--surface-subtle); border-color: var(--primary); color: var(--primary-dark); }
     .btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #FECACA; }
     .btn-sm { height: 30px; padding: 0 9px; font-size: 11.5px; }
 
@@ -667,8 +1000,8 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       background: #E2E8F0;
-      padding: 3px;
-      border-radius: 9px;
+      padding: 3.5px;
+      border-radius: 10px;
       margin-bottom: 14px;
     }
 
@@ -687,7 +1020,134 @@
     .seg-btn.active {
       background: var(--surface);
       color: var(--primary-dark);
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1);
+    }
+
+    .alert {
+      padding: 13px 15px;
+      border-radius: var(--radius-md);
+      font-size: 12.5px;
+      margin-bottom: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .alert-warning {
+      background: var(--warning-bg);
+      border: 1px solid #FDE68A;
+      color: var(--warning);
+    }
+
+    /* =========================================================================
+       REGULATIONS TAB COMPONENTS (PREFIXED .reg- UNTUK BEBAS KONFLIK)
+       ========================================================================= */
+    .reg-subtabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #E2E8F0;
+      padding: 3.5px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    .reg-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .reg-card {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius-md);
+      padding: 14px 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .reg-card:hover {
+      border-color: var(--primary-border);
+      box-shadow: var(--shadow-xs);
+    }
+
+    .reg-card.reg-match-profile {
+      background: #F4FBF8;
+      border-color: var(--primary-border);
+      border-left-color: var(--primary-accent);
+    }
+
+    .reg-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .reg-cat-badge {
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #E2E8F0;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .reg-active-badge {
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      color: var(--primary-dark);
+    }
+
+    .reg-number {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      line-height: 1.3;
+    }
+
+    .reg-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 2px;
+    }
+
+    .reg-summary {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .reg-points {
+      margin-top: 8px;
+      padding-left: 16px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .reg-points li {
+      margin-bottom: 3px;
+    }
+
+    .reg-matrix-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
     }
 
     /* =========================================================================
@@ -697,9 +1157,9 @@
       text-align: center;
       font-size: 12px;
       color: var(--text-muted);
-      padding: 16px 10px 8px;
+      padding: 18px 10px 8px;
       border-top: 1px solid var(--border);
-      margin-top: 20px;
+      margin-top: 16px;
     }
 
     .app-footer a {
@@ -716,7 +1176,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.55);
+      background: rgba(4, 47, 46, 0.55);
       backdrop-filter: blur(2px);
       display: flex;
       align-items: center;
@@ -732,7 +1192,7 @@
       width: 100%;
       padding: 20px;
       box-shadow: var(--shadow-md);
-      border-top: 4px solid var(--primary-dark);
+      border-top: 4px solid var(--sidebar-bg);
     }
 
     .creator-header {
@@ -755,14 +1215,14 @@
       color: var(--primary-dark);
       border: 1px solid var(--primary-border);
       font-size: 10.5px;
-      font-weight: 700;
+      font-weight: 800;
       padding: 2px 8px;
       border-radius: 999px;
       margin-bottom: 4px;
     }
 
     /* =========================================================================
-       MOBILE LIVE THP BAR & BOTTOM NAVIGATION
+       MOBILE FLOATING LIVE THP BAR & BOTTOM NAVIGATION
        ========================================================================= */
     .mobile-live-bar {
       display: none;
@@ -777,23 +1237,23 @@
       background: var(--surface);
       border-top: 1px solid var(--border);
       z-index: 50;
-      box-shadow: 0 -2px 10px rgba(15, 23, 42, 0.05);
+      box-shadow: 0 -2px 12px rgba(15, 23, 42, 0.06);
     }
 
     .mobile-nav-inner {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
     }
 
     .mob-tab {
       border: none;
       background: transparent;
-      padding: 9px 4px 8px;
+      padding: 9px 2px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 3px;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
       color: var(--text-muted);
       cursor: pointer;
@@ -801,7 +1261,7 @@
 
     .mob-tab.active {
       color: var(--primary-dark);
-      font-weight: 700;
+      font-weight: 800;
     }
 
     /* Toast */
@@ -809,12 +1269,12 @@
       position: fixed;
       bottom: 124px;
       right: 16px;
-      background: #0F172A;
-      color: #fff;
+      background: var(--sidebar-bg);
+      color: #FFFFFF;
       padding: 10px 14px;
       border-radius: 9px;
       font-size: 12.5px;
-      font-weight: 500;
+      font-weight: 600;
       box-shadow: var(--shadow-md);
       z-index: 100;
       opacity: 0;
@@ -835,10 +1295,60 @@
     /* =========================================================================
        RESPONSIVE BREAKPOINTS
        ========================================================================= */
-    @media (max-width: 860px) {
-      .desktop-nav { display: none; }
-      .mobile-nav { display: block; }
-      .entity-bar, .grid-2 { grid-template-columns: 1fr; }
+    @media (max-width: 920px) {
+      body {
+        padding-bottom: 126px;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .topbar {
+        padding: 10px 14px;
+        border-top: 3px solid var(--sidebar-bg);
+      }
+
+      .mobile-brand-logo {
+        display: grid;
+        place-items: center;
+      }
+
+      .topbar-title-desktop,
+      .topbar-sub-desktop {
+        display: none;
+      }
+
+      .topbar-title-mobile {
+        display: block;
+      }
+
+      .mobile-dot-indicator {
+        display: inline-block;
+      }
+
+      .btn-install-topbar {
+        display: none !important;
+      }
+
+      .main-content {
+        padding: 14px 14px 24px;
+      }
+
+      .entity-grid,
+      .bento-grid,
+      .reg-grid,
+      .reg-matrix-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-amount {
+        font-size: 25px;
+      }
+
+      .mobile-nav {
+        display: block;
+      }
 
       .mobile-live-bar {
         display: flex;
@@ -849,11 +1359,12 @@
         bottom: 56px;
         left: 10px;
         right: 10px;
-        background: #064E3B;
-        color: #fff;
+        background: var(--sidebar-bg);
+        color: #FFFFFF;
         padding: 9px 13px;
         border-radius: 11px;
-        box-shadow: 0 6px 18px rgba(6, 78, 59, 0.28);
+        border: 1px solid rgba(167, 243, 208, 0.2);
+        box-shadow: 0 6px 18px rgba(4, 47, 46, 0.32);
         z-index: 48;
         transition: opacity 0.2s, transform 0.2s;
       }
@@ -866,7 +1377,7 @@
 
       .mlb-label {
         font-size: 10.5px;
-        opacity: 0.85;
+        color: #A7F3D0;
       }
 
       .mlb-val {
@@ -876,9 +1387,9 @@
       }
 
       .mlb-btn {
-        background: rgba(255,255,255,0.16);
-        color: #fff;
-        border: 1px solid rgba(255,255,255,0.28);
+        background: rgba(255, 255, 255, 0.14);
+        color: #FFFFFF;
+        border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 7px;
         padding: 6px 10px;
         font-size: 11.5px;
@@ -889,39 +1400,57 @@
     }
 
     @media (max-width: 560px) {
-      .title-desktop { display: none; }
-      .title-mobile { display: inline; }
-      .form-grid { grid-template-columns: 1fr; }
-      .btn-row { grid-template-columns: 1fr; }
-      .chip-status .status-label { display: none; }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-row {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media print {
-      body {
-        background: #fff;
-        padding: 0;
+      @page {
+        size: A4 portrait;
+        margin: 12mm 14mm;
       }
-      .app-header, .desktop-nav, .mobile-nav, .mobile-live-bar, .container, .toast, .modal-backdrop {
+      html, body {
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: auto !important;
+        height: auto !important;
+      }
+      .app-shell,
+      .sidebar,
+      .topbar,
+      .mobile-nav,
+      .mobile-live-bar,
+      .main-content,
+      .toast,
+      .modal-backdrop {
         display: none !important;
       }
       #printArea {
         display: block !important;
-        padding: 12mm;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
         color: #000;
-        font-size: 11pt;
+        font-size: 10.5pt;
       }
       .print-header {
-        border-bottom: 2px solid #064E3B;
+        border-bottom: 2px solid #042F2E;
         padding-bottom: 8px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
       }
       .print-title {
-        font-size: 15pt;
+        font-size: 14.5pt;
         font-weight: 700;
-        color: #064E3B;
+        color: #042F2E;
       }
       .print-meta {
         width: 100%;
@@ -935,648 +1464,889 @@
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 12px;
-        font-size: 10pt;
+        font-size: 9.8pt;
       }
       .print-table th, .print-table td {
         border: 1px solid #94A3B8;
-        padding: 6px 8px;
+        padding: 5.5px 8px;
       }
       .print-table th {
         background: #ECFDF5 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
+      .print-closing-group {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-top: 8px;
+      }
       .print-sign {
-        margin-top: 26px;
+        margin-top: 22px;
         display: grid;
         grid-template-columns: 1fr 1fr;
         text-align: center;
         font-size: 10pt;
+        break-inside: avoid;
+        page-break-inside: avoid;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- =================================================================== -->
-  <!-- HEADER (CLEAN LIGHT ENTERPRISE BAR)                                 -->
-  <!-- =================================================================== -->
-  <header class="app-header">
-    <div class="header-inner">
-      <div class="brand">
-        <div class="brand-icon" aria-hidden="true">
-          <img src="icon-192.png" alt="Logo SimKerja ID" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-          <svg style="display:none; color:#064E3B;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-            <rect x="3" y="3" width="18" height="18" rx="3"></rect>
-            <path d="M7 8h10M7 12h6M7 16h8"></path>
-          </svg>
+  <div class="app-shell">
+    <!-- =================================================================== -->
+    <!-- DESKTOP LEFT SIDEBAR (DEEP OBSIDIAN EMERALD)                        -->
+    <!-- =================================================================== -->
+    <aside class="sidebar">
+      <div>
+        <div class="sidebar-brand">
+          <div class="sidebar-logo">
+            <img src="icon-192.png" alt="Logo SimKerja ID" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+            <svg style="display:none; color:#042F2E;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+              <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+              <path d="M7 8h10M7 12h6M7 16h8"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="sidebar-brand-name">SimKerja ID</div>
+            <div class="sidebar-brand-sub">HRIS &amp; Payroll Engine</div>
+          </div>
         </div>
-        <div class="brand-text">
-          <h1 class="brand-title">
-            <span class="title-desktop">Simulator Ketenagakerjaan Indonesia</span>
-            <span class="title-mobile">SimKerja ID</span>
-          </h1>
-          <p class="brand-sub">Payroll • BPJS / Taspen • Pesangon PP 35/2021 • PPh 21</p>
-        </div>
+
+        <div class="sidebar-section-label">Modul Utama</div>
+        <nav class="sidebar-nav">
+          <button type="button" class="side-tab active" data-tab="payroll" onclick="switchTab('payroll')">
+            <span class="side-tab-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              <span>Payroll &amp; BPJS</span>
+            </span>
+          </button>
+          <button type="button" class="side-tab" data-tab="severance" onclick="switchTab('severance')">
+            <span class="side-tab-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span>Pesangon / PKWT</span>
+            </span>
+          </button>
+          <button type="button" class="side-tab" data-tab="regulations" onclick="switchTab('regulations')">
+            <span class="side-tab-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              <span>Regulasi</span>
+            </span>
+          </button>
+          <button type="button" class="side-tab" data-tab="history" onclick="switchTab('history')">
+            <span class="side-tab-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Riwayat</span>
+            </span>
+            <span class="side-badge" id="sideHistoryCount">0</span>
+          </button>
+        </nav>
       </div>
 
-      <div class="header-actions">
-        <button type="button" class="chip-creator" onclick="toggleCreatorModal(true)" title="Informasi Pengembang Aplikasi">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          <span>Bang Dul</span>
+      <div class="sidebar-bottom">
+        <button type="button" class="side-tab" onclick="toggleCreatorModal(true)" style="padding:9px 12px;">
+          <span class="side-tab-left">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>Tentang Pengembang</span>
+          </span>
         </button>
-        <span class="chip-status" id="pwaStatusBadge" title="Status Kesiapan Offline">
-          <span class="dot-status" id="netDot"></span>
-          <span id="netText">Offline</span>
-        </span>
-      </div>
-    </div>
-  </header>
-
-  <!-- DESKTOP NAVIGATION -->
-  <nav class="desktop-nav">
-    <div class="desktop-nav-inner">
-      <button class="nav-tab active" data-tab="payroll" onclick="switchTab('payroll')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        Payroll, BPJS &amp; PPh 21
-      </button>
-      <button class="nav-tab" data-tab="severance" onclick="switchTab('severance')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        Pesangon &amp; Kompensasi PKWT
-      </button>
-      <button class="nav-tab" data-tab="history" onclick="switchTab('history')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Riwayat &amp; Laporan (<span id="historyCountBadge">0</span>)
-      </button>
-    </div>
-  </nav>
-
-  <!-- MAIN CONTAINER -->
-  <main class="container">
-
-    <!-- DEDICATED PWA INSTALL BANNER (TIDAK PERNAH MENUMPUK HEADER) -->
-    <div class="install-banner" id="installBanner" hidden>
-      <div class="install-banner-info">
-        <img src="icon-192.png" alt="App Icon" onerror="this.style.display='none'" />
-        <div>
-          <div class="install-banner-title">Pasang SimKerja ID di Perangkat</div>
-          <div class="install-banner-desc">Buka lebih cepat &amp; hitung 100% offline tanpa kuota internet</div>
+        <div class="sidebar-status-pill" id="sidebarStatusPill">
+          <span class="status-dot" id="sideNetDot"></span>
+          <span id="sideNetText">Offline Ready</span>
         </div>
       </div>
-      <div class="install-banner-btns">
-        <button type="button" class="btn-install-now" id="btnInstallPwa" onclick="installPwaApp()">Pasang</button>
-        <button type="button" class="btn-install-later" onclick="dismissInstallBanner()">Nanti</button>
-      </div>
-    </div>
-
-    <!-- GLOBAL ENTITY PROFILE & EMPLOYEE IDENTITY BAR -->
-    <section class="entity-bar">
-      <div class="form-group">
-        <label for="globalEntityProfile">Profil Instansi / Pemberi Kerja</label>
-        <select id="globalEntityProfile" onchange="handleEntityChange()">
-          <optgroup label="Badan Usaha (Rezim UU Cipta Kerja &amp; PP 35/2021)">
-            <option value="SWASTA_UMUM" selected>Perusahaan Swasta (Menengah / Besar)</option>
-            <option value="SWASTA_MIKRO_KECIL">Perusahaan Swasta (Mikro / Kecil)</option>
-            <option value="BUMN_BUMD">BUMN / BUMD (Perumda &amp; Perseroda)</option>
-          </optgroup>
-          <optgroup label="Instansi Negeri / Pemerintah Daerah">
-            <option value="ASN_PNS">Instansi Pemerintah / Pemda (PNS — Skema PT Taspen)</option>
-            <option value="ASN_PPPK">Instansi Pemerintah / Pemda (PPPK)</option>
-            <option value="NON_ASN_BLUD">Pegawai Non-ASN / Kontrak BLUD (RSUD / Dinas)</option>
-          </optgroup>
-        </select>
-      </div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="empName">Nama Pegawai / Pekerja</label>
-          <input type="text" id="empName" placeholder="Nama lengkap pegawai" value="Ahmad Fauzi" oninput="recalculateAll()" />
-        </div>
-        <div class="form-group">
-          <label for="ptkpStatus">Status PTKP (PPh 21)</label>
-          <select id="ptkpStatus" onchange="recalculateAll()">
-            <option value="TK/0" selected>TK/0 — Tidak Kawin, 0 Tanggungan (TER A)</option>
-            <option value="TK/1">TK/1 — Tidak Kawin, 1 Tanggungan (TER A)</option>
-            <option value="K/0">K/0 — Kawin, 0 Tanggungan (TER A)</option>
-            <option value="TK/2">TK/2 — Tidak Kawin, 2 Tanggungan (TER B)</option>
-            <option value="K/1">K/1 — Kawin, 1 Tanggungan (TER B)</option>
-            <option value="TK/3">TK/3 — Tidak Kawin, 3 Tanggungan (TER B)</option>
-            <option value="K/2">K/2 — Kawin, 2 Tanggungan (TER B)</option>
-            <option value="K/3">K/3 — Kawin, 3 Tanggungan (TER C)</option>
-          </select>
-        </div>
-      </div>
-    </section>
+    </aside>
 
     <!-- =================================================================== -->
-    <!-- TAB 1: PAYROLL, BPJS KESEHATAN, BPJS TK / TASPEN & PPH 21           -->
+    <!-- RIGHT WORKSPACE                                                     -->
     <!-- =================================================================== -->
-    <div id="view-payroll" class="tab-view">
-      <div class="grid-2">
-        <!-- INPUT PAYROLL -->
-        <div>
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                Komponen Upah &amp; Kepesertaan
-              </div>
-              <span class="pill-tag" id="payrollEntityTag">Swasta Umum</span>
-            </div>
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="payGajiPokok">Gaji Pokok</label>
-                <div class="currency-wrap">
-                  <span class="currency-prefix">Rp</span>
-                  <input type="text" id="payGajiPokok" class="currency-input" value="6.500.000" oninput="formatCurrencyInput(this); runPayroll()" />
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="payTunjTetap">Tunjangan Tetap</label>
-                <div class="currency-wrap">
-                  <span class="currency-prefix">Rp</span>
-                  <input type="text" id="payTunjTetap" class="currency-input" value="1.500.000" oninput="formatCurrencyInput(this); runPayroll()" />
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="payTunjTidakTetap">Tunjangan Tidak Tetap / Lembur / Jaspel</label>
-                <div class="currency-wrap">
-                  <span class="currency-prefix">Rp</span>
-                  <input type="text" id="payTunjTidakTetap" class="currency-input" value="500.000" oninput="formatCurrencyInput(this); runPayroll()" />
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="payPotonganLain">Potongan Internal Lainnya</label>
-                <div class="currency-wrap">
-                  <span class="currency-prefix">Rp</span>
-                  <input type="text" id="payPotonganLain" class="currency-input" value="0" oninput="formatCurrencyInput(this); runPayroll()" />
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="bpjsKesExtraFamily">Tambahan Keluarga BPJS Kes (&gt;5 org)</label>
-                <select id="bpjsKesExtraFamily" onchange="runPayroll()">
-                  <option value="0" selected>0 Orang (Ditanggung PPU 5%)</option>
-                  <option value="1">1 Orang (+1% Pekerja)</option>
-                  <option value="2">2 Orang (+2% Pekerja)</option>
-                  <option value="3">3 Orang (+3% Pekerja)</option>
-                </select>
-              </div>
-
-              <div class="form-group" id="groupJkkRate">
-                <label for="jkkRiskRate">Tingkat Risiko JKK</label>
-                <select id="jkkRiskRate" onchange="runPayroll()">
-                  <option value="0.0024" selected>Kelompok I — Sangat Rendah (0,24%)</option>
-                  <option value="0.0054">Kelompok II — Rendah (0,54%)</option>
-                  <option value="0.0089">Kelompok III — Sedang (0,89%)</option>
-                  <option value="0.0127">Kelompok IV — Tinggi (1,27%)</option>
-                  <option value="0.0174">Kelompok V — Sangat Tinggi (1,74%)</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Opsi Khusus Mikro/Kecil & Non-ASN BLUD -->
-            <div class="sub-panel" id="payrollOptionalPrograms" hidden>
-              <div class="sub-panel-title">Program Opsional Kepesertaan BPJS TK</div>
-              <label class="check-row">
-                <input type="checkbox" id="optJhtActive" checked onchange="runPayroll()" />
-                <span>Ikut Program JHT BPJS Ketenagakerjaan (3,7% Pemberi Kerja + 2% Pekerja)</span>
-              </label>
-              <label class="check-row">
-                <input type="checkbox" id="optJpActive" onchange="runPayroll()" />
-                <span>Ikut Program Jaminan Pensiun / JP (2% Pemberi Kerja + 1% Pekerja)</span>
-              </label>
-            </div>
-
-            <!-- Opsi Pajak -->
-            <div class="sub-panel">
-              <div class="sub-panel-title">Pengaturan PPh 21 Bulanan (PP No. 58 Tahun 2023)</div>
-              <label class="check-row">
-                <input type="checkbox" id="includePremiInBruto" checked onchange="runPayroll()" />
-                <span>Tambahkan premi JKK, JKM &amp; BPJS Kes (4%) ke Bruto PPh 21 (PMK 168/2023)</span>
-              </label>
-              <label class="check-row" id="rowAsnTaxDtp" hidden>
-                <input type="checkbox" id="asnTaxBorneByGov" checked onchange="runPayroll()" />
-                <span>PPh 21 Gaji ASN Ditanggung Pemerintah (DTP — tidak memotong THP)</span>
-              </label>
-            </div>
+    <div class="workspace">
+      <!-- TOP HEADER BAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="mobile-brand-logo">
+            <img src="icon-192.png" alt="Logo SimKerja ID" onerror="this.style.display='none'" />
+          </div>
+          <div class="topbar-titles">
+            <div class="topbar-title-desktop" id="desktopPageTitle">Simulasi Payroll, BPJS &amp; PPh 21</div>
+            <div class="topbar-sub-desktop" id="desktopPageSub">Perhitungan upah bulanan, iuran jaminan sosial &amp; tarif efektif rata-rata (TER)</div>
+            <div class="topbar-title-mobile">SimKerja ID</div>
           </div>
         </div>
 
-        <!-- HASIL PAYROLL -->
-        <div id="payrollResultCard">
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                Ringkasan Slip Gaji &amp; Iuran
-              </div>
-              <span class="hint">Plafon Kes: Rp12 Jt | JP: Rp11,086 Jt</span>
-            </div>
+        <div class="topbar-right">
+          <button type="button" class="btn-install-topbar" id="btnInstallDesktop" hidden onclick="installPwaApp()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Install App</span>
+          </button>
 
-            <div class="kpi-grid">
-              <div class="kpi-box highlight">
-                <div class="kpi-label">Take Home Pay (THP) Diterima Pekerja</div>
-                <div class="kpi-value" id="payThpDisplay">Rp 0</div>
-              </div>
-              <div class="kpi-box">
-                <div class="kpi-label">Total Potongan Pekerja</div>
-                <div class="kpi-value neg" id="payTotalDeductDisplay">Rp 0</div>
-              </div>
-              <div class="kpi-box">
-                <div class="kpi-label">Beban Iuran Pemberi Kerja</div>
-                <div class="kpi-value pos" id="payEmployerCostDisplay">Rp 0</div>
-              </div>
-            </div>
+          <button type="button" class="creator-pill" onclick="toggleCreatorModal(true)" title="Informasi Pengembang Aplikasi">
+            <span class="creator-avatar">BD</span>
+            <span>Bang Dul</span>
+            <span class="mobile-dot-indicator" id="mobNetDot"></span>
+          </button>
+        </div>
+      </header>
 
-            <div class="terbilang-box" id="payTerbilang">Nol Rupiah</div>
+      <!-- MAIN WORKSPACE CONTENT -->
+      <main class="main-content">
 
-            <table class="acc-table">
-              <thead>
-                <tr>
-                  <th>Komponen Rincian</th>
-                  <th class="amt">Nominal</th>
-                </tr>
-              </thead>
-              <tbody id="payrollResultBody"></tbody>
-            </table>
-
-            <div class="legal-box" id="payrollLegalBox"></div>
-
-            <div class="btn-row">
-              <button class="btn btn-primary" onclick="saveCurrentSimulation('PAYROLL')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                Simpan Riwayat
-              </button>
-              <button class="btn btn-outline" onclick="printReport('PAYROLL')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Cetak PDF
-              </button>
-              <button class="btn btn-outline" onclick="exportExcel('PAYROLL')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Ekspor Excel
-              </button>
+        <!-- DEDICATED PWA INSTALL BANNER -->
+        <div class="mobile-install-banner" id="installBanner" hidden>
+          <div class="mib-left">
+            <img src="icon-192.png" alt="Ikon SimKerja ID" onerror="this.style.display='none'" />
+            <div>
+              <div class="mib-title">Pasang Aplikasi SimKerja ID</div>
+              <div class="mib-sub">Akses cepat dari layar utama &amp; 100% offline</div>
             </div>
           </div>
+          <div class="mib-actions">
+            <button type="button" class="mib-btn-yes" onclick="installPwaApp()">Install</button>
+            <button type="button" class="mib-btn-no" onclick="dismissInstallBanner()">Nanti</button>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- =================================================================== -->
-    <!-- TAB 2: PESANGON (PKWTT) & KOMPENSASI PKWT                           -->
-    <!-- =================================================================== -->
-    <div id="view-severance" class="tab-view" hidden>
-      <div class="alert alert-warning" id="asnWarningBanner" hidden>
-        <div>
-          <strong>Pengecualian Rezim Hukum ASN:</strong>
-          <p id="asnWarningText" style="margin-top:3px;"></p>
-        </div>
-      </div>
-
-      <div class="grid-2" id="severanceMainGrid">
-        <!-- INPUT PESANGON / PKWT -->
-        <div>
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-                Parameter Hubungan Kerja &amp; Masa Kerja
-              </div>
-              <span class="pill-tag" id="sevSchemeTag">Swasta Umum</span>
+        <!-- ENTITY PROFILE & IDENTITY CARD -->
+        <section class="card entity-card">
+          <div class="entity-grid">
+            <div class="form-group">
+              <label for="globalEntityProfile">Profil Instansi / Pemberi Kerja</label>
+              <select id="globalEntityProfile" onchange="handleEntityChange()">
+                <optgroup label="Badan Usaha (Rezim UU Cipta Kerja &amp; PP 35/2021)">
+                  <option value="SWASTA_UMUM" selected>Perusahaan Swasta (Menengah / Besar)</option>
+                  <option value="SWASTA_MIKRO_KECIL">Perusahaan Swasta (Mikro / Kecil)</option>
+                  <option value="BUMN_BUMD">BUMN / BUMD (Perumda &amp; Perseroda)</option>
+                </optgroup>
+                <optgroup label="Instansi Negeri / Pemerintah Daerah">
+                  <option value="ASN_PNS">Instansi Pemerintah / Pemda (PNS — Skema PT Taspen)</option>
+                  <option value="ASN_PPPK">Instansi Pemerintah / Pemda (PPPK)</option>
+                  <option value="NON_ASN_BLUD">Pegawai Non-ASN / Kontrak BLUD (RSUD / Dinas)</option>
+                </optgroup>
+              </select>
             </div>
-
-            <div class="seg-control">
-              <button type="button" class="seg-btn active" id="btnModePkwtt" onclick="setContractStatus('PKWTT')">
-                PKWTT (Tetap — Pesangon)
-              </button>
-              <button type="button" class="seg-btn" id="btnModePkwt" onclick="setContractStatus('PKWT')">
-                PKWT (Kontrak — Kompensasi)
-              </button>
+            <div class="form-group">
+              <label for="empName">Nama Pegawai / Pekerja</label>
+              <input type="text" id="empName" placeholder="Masukkan nama lengkap pegawai" value="" oninput="recalculateAll()" />
             </div>
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="sevUpahTetap">Upah Tetap Dasar Hitung (Pokok + Tunj. Tetap)</label>
-                <div class="currency-wrap">
-                  <span class="currency-prefix">Rp</span>
-                  <input type="text" id="sevUpahTetap" class="currency-input" value="8.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Masa Kerja</label>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                  <div>
-                    <input type="number" id="sevYears" min="0" max="50" value="5" oninput="runSeverance()" />
-                    <span class="hint">Tahun</span>
-                  </div>
-                  <div>
-                    <input type="number" id="sevMonths" min="0" max="11" value="4" oninput="runSeverance()" />
-                    <span class="hint">Bulan</span>
-                  </div>
-                </div>
-              </div>
+            <div class="form-group">
+              <label for="ptkpStatus">Status PTKP (PPh 21)</label>
+              <select id="ptkpStatus" onchange="recalculateAll()">
+                <option value="TK/0" selected>TK/0 — Tidak Kawin, 0 Tanggungan (TER A)</option>
+                <option value="TK/1">TK/1 — Tidak Kawin, 1 Tanggungan (TER A)</option>
+                <option value="K/0">K/0 — Kawin, 0 Tanggungan (TER A)</option>
+                <option value="TK/2">TK/2 — Tidak Kawin, 2 Tanggungan (TER B)</option>
+                <option value="K/1">K/1 — Kawin, 1 Tanggungan (TER B)</option>
+                <option value="TK/3">TK/3 — Tidak Kawin, 3 Tanggungan (TER B)</option>
+                <option value="K/2">K/2 — Kawin, 2 Tanggungan (TER B)</option>
+                <option value="K/3">K/3 — Kawin, 3 Tanggungan (TER C)</option>
+              </select>
             </div>
+          </div>
 
-            <!-- FIELD KHUSUS PKWTT -->
-            <div id="pkwttFieldsGroup" style="margin-top:12px;">
-              <div class="form-grid">
-                <div class="form-group full">
-                  <label for="phkReasonKey">Alasan Pengakhiran Hubungan Kerja (PP No. 35 Tahun 2021)</label>
-                  <select id="phkReasonKey" onchange="runSeverance()"></select>
-                </div>
-                <div class="form-group">
-                  <label for="sevSisaCuti">Sisa Cuti Tahunan Belum Gugur (Hari)</label>
-                  <input type="number" id="sevSisaCuti" min="0" max="60" value="4" oninput="runSeverance()" />
-                </div>
-                <div class="form-group">
-                  <label for="sevHariKerja">Pembagi Hari Kerja / Bulan</label>
-                  <select id="sevHariKerja" onchange="runSeverance()">
-                    <option value="25" selected>25 Hari (6 Hari Kerja / Minggu)</option>
-                    <option value="21">21 Hari (5 Hari Kerja / Minggu)</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="sevOngkosPulang">Ongkos Pulang ke Tempat Penerimaan</label>
-                  <div class="currency-wrap">
-                    <span class="currency-prefix">Rp</span>
-                    <input type="text" id="sevOngkosPulang" class="currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+          <!-- Quick Scenario Presets & Reset -->
+          <div class="preset-strip">
+            <span class="preset-label">Simulasi Cepat:</span>
+            <button type="button" class="preset-chip" onclick="applyQuickPreset('SWASTA')">Swasta Umum (Rp 8,5 Jt)</button>
+            <button type="button" class="preset-chip" onclick="applyQuickPreset('BLUD')">Staf Non-ASN BLUD</button>
+            <button type="button" class="preset-chip" onclick="applyQuickPreset('ASN')">ASN PNS (PT Taspen)</button>
+            <button type="button" class="preset-chip" onclick="applyQuickPreset('MIKRO')">Usaha Mikro / Kecil</button>
+            <button type="button" class="preset-chip reset-chip" onclick="resetAllInputs()">Kosongkan Form</button>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- TAB 1: PAYROLL, BPJS KESEHATAN, BPJS TK / TASPEN & PPH 21       -->
+        <!-- =============================================================== -->
+        <div id="view-payroll" class="tab-view">
+          <div class="bento-grid">
+            <!-- LEFT: INPUT PAYROLL -->
+            <div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Komponen Upah &amp; Kepesertaan
                   </div>
+                  <span class="pill-tag" id="payrollEntityTag">Swasta Umum</span>
                 </div>
-                <div class="form-group">
-                  <label for="sevHakLain">Hak Lainnya / Uang Pisah PKB</label>
-                  <div class="currency-wrap">
-                    <span class="currency-prefix">Rp</span>
-                    <input type="text" id="sevHakLain" class="currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <!-- FIELD KHUSUS PKWT -->
-            <div id="pkwtFieldsGroup" style="margin-top:12px;" hidden>
-              <div class="form-grid">
-                <div class="form-group full">
-                  <label class="check-row">
-                    <input type="checkbox" id="pkwtPhkDini" onchange="togglePkwtDini(); runSeverance()" />
-                    <span>Pemutusan PKWT sebelum jangka waktu berakhir oleh Pemberi Kerja (Pasal 17 PP 35/2021)</span>
-                  </label>
-                </div>
-                <div class="form-group full" id="pkwtSisaBulanGroup" hidden>
-                  <label for="pkwtSisaBulan">Sisa Jangka Waktu Kontrak yang Belum Dijalani (Bulan)</label>
-                  <input type="number" id="pkwtSisaBulan" min="0" max="60" value="3" oninput="runSeverance()" />
-                </div>
-              </div>
-
-              <div class="sub-panel">
-                <div class="sub-panel-title">Skema Pemotongan PPh 21 Kompensasi PKWT</div>
                 <div class="form-grid">
-                  <div class="form-group full">
-                    <label for="pkwtTaxMode">Status Kontrak Setelah Pencairan</label>
-                    <select id="pkwtTaxMode" onchange="togglePkwtTaxMode(); runSeverance()">
-                      <option value="BULANAN_TER" selected>Kontrak Diperpanjang / Lanjut Bekerja (PPh 21 TER PP 58/2023)</option>
-                      <option value="MASA_PAJAK_TERAKHIR">Kontrak Berakhir &amp; Berhenti Bekerja (Masa Pajak Terakhir PMK 168/2023)</option>
-                    </select>
+                  <div class="form-group">
+                    <label for="payGajiPokok">Gaji Pokok (Rp)</label>
+                    <div class="currency-wrap">
+                      <span class="currency-prefix">Rp</span>
+                      <input type="text" id="payGajiPokok" value="" placeholder="0" oninput="formatCurrencyInput(this); runPayroll()" />
+                    </div>
                   </div>
                   <div class="form-group">
-                    <label for="pkwtGajiBulanIni">Gaji Bruto Bulan Berjalan</label>
+                    <label for="payTunjTetap">Tunjangan Tetap (Rp)</label>
                     <div class="currency-wrap">
                       <span class="currency-prefix">Rp</span>
-                      <input type="text" id="pkwtGajiBulanIni" class="currency-input" value="8.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                      <input type="text" id="payTunjTetap" value="" placeholder="0" oninput="formatCurrencyInput(this); runPayroll()" />
                     </div>
                   </div>
-                  <div class="form-group" id="pkwtBulanKerjaGroup" hidden>
-                    <label for="pkwtBulanKerjaThn">Jumlah Bulan Bekerja di Tahun Ini</label>
-                    <input type="number" id="pkwtBulanKerjaThn" min="1" max="12" value="10" oninput="runSeverance()" />
-                  </div>
-                  <div class="form-group" id="pkwtAkumBrutoGroup" hidden>
-                    <label for="pkwtAkumBruto">Akumulasi Bruto Sebelum Bulan Ini</label>
+                  <div class="form-group">
+                    <label for="payTunjTidakTetap">Tunjangan Tidak Tetap / Lembur / Jaspel</label>
                     <div class="currency-wrap">
                       <span class="currency-prefix">Rp</span>
-                      <input type="text" id="pkwtAkumBruto" class="currency-input" value="72.000.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                      <input type="text" id="payTunjTidakTetap" value="" placeholder="0" oninput="formatCurrencyInput(this); runPayroll()" />
                     </div>
                   </div>
-                  <div class="form-group" id="pkwtPphPrevGroup" hidden>
-                    <label for="pkwtPphPrev">PPh 21 Sudah Dipotong Sebelumnya</label>
+                  <div class="form-group">
+                    <label for="payPotonganLain">Potongan Internal Lainnya</label>
                     <div class="currency-wrap">
                       <span class="currency-prefix">Rp</span>
-                      <input type="text" id="pkwtPphPrev" class="currency-input" value="1.080.000" oninput="formatCurrencyInput(this); runSeverance()" />
+                      <input type="text" id="payPotonganLain" value="" placeholder="0" oninput="formatCurrencyInput(this); runPayroll()" />
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            <!-- PANEL MIKRO/KECIL -->
-            <div class="sub-panel" id="panelMikroKecil" hidden>
-              <div class="sub-panel-title">Kesepakatan Usaha Mikro / Kecil (Pasal 18 &amp; 59 PP 35/2021)</div>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="mikroPersen">Persentase Kesepakatan (% dari Standar)</label>
-                  <input type="number" id="mikroPersen" min="0" max="200" value="50" oninput="runSeverance()" />
-                </div>
-                <div class="form-group">
-                  <label for="mikroNominal">Atau Nominal Kesepakatan Bulat</label>
-                  <div class="currency-wrap">
-                    <span class="currency-prefix">Rp</span>
-                    <input type="text" id="mikroNominal" class="currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  <div class="form-group">
+                    <label for="bpjsKesExtraFamily">Tambahan Keluarga BPJS Kes (&gt;5 org)</label>
+                    <select id="bpjsKesExtraFamily" onchange="runPayroll()">
+                      <option value="0" selected>0 Orang (Ditanggung PPU 5%)</option>
+                      <option value="1">1 Orang (+1% Pekerja)</option>
+                      <option value="2">2 Orang (+2% Pekerja)</option>
+                      <option value="3">3 Orang (+3% Pekerja)</option>
+                    </select>
                   </div>
-                  <span class="hint">Isi &gt; 0 jika disepakati angka bulat</span>
-                </div>
-              </div>
-            </div>
 
-            <!-- PANEL BUMN / BUMD -->
-            <div class="sub-panel" id="panelBumnBumd" hidden>
-              <div class="sub-panel-title">Penyesuaian PKB / Peraturan Direksi BUMN &amp; BUMD</div>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="bumnUpOverride">Override Pengali UP (Kosong = Standar)</label>
-                  <input type="number" id="bumnUpOverride" step="0.25" min="0" max="5" placeholder="Contoh: 2.0" oninput="runSeverance()" />
-                </div>
-                <div class="form-group">
-                  <label for="bumnUpmkOverride">Override Pengali UPMK (Kosong = Standar)</label>
-                  <input type="number" id="bumnUpmkOverride" step="0.25" min="0" max="5" placeholder="Contoh: 1.5" oninput="runSeverance()" />
-                </div>
-                <div class="form-group full">
-                  <label for="bumnTaliAsih">Penghargaan Purna Bakti / Tali Asih Khusus</label>
-                  <div class="currency-wrap">
-                    <span class="currency-prefix">Rp</span>
-                    <input type="text" id="bumnTaliAsih" class="currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                  <div class="form-group" id="groupJkkRate">
+                    <label for="jkkRiskRate">Tingkat Risiko JKK</label>
+                    <select id="jkkRiskRate" onchange="runPayroll()">
+                      <option value="0.0024" selected>Kelompok I — Sangat Rendah (0,24%)</option>
+                      <option value="0.0054">Kelompok II — Rendah (0,54%)</option>
+                      <option value="0.0089">Kelompok III — Sedang (0,89%)</option>
+                      <option value="0.0127">Kelompok IV — Tinggi (1,27%)</option>
+                      <option value="0.0174">Kelompok V — Sangat Tinggi (1,74%)</option>
+                    </select>
                   </div>
                 </div>
+
+                <!-- Opsi Khusus Mikro/Kecil & Non-ASN BLUD -->
+                <div class="sub-panel" id="payrollOptionalPrograms" hidden>
+                  <div class="sub-panel-title">Program Opsional Kepesertaan BPJS TK</div>
+                  <label class="check-row">
+                    <input type="checkbox" id="optJhtActive" checked onchange="runPayroll()" />
+                    <span>Ikut Program JHT BPJS Ketenagakerjaan (3,7% Pemberi Kerja + 2% Pekerja)</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="optJpActive" onchange="runPayroll()" />
+                    <span>Ikut Program Jaminan Pensiun / JP (2% Pemberi Kerja + 1% Pekerja)</span>
+                  </label>
+                </div>
+
+                <!-- Opsi Pajak -->
+                <div class="sub-panel">
+                  <div class="sub-panel-title">Pengaturan PPh 21 Bulanan (PP No. 58 Tahun 2023)</div>
+                  <label class="check-row">
+                    <input type="checkbox" id="includePremiInBruto" checked onchange="runPayroll()" />
+                    <span>Tambahkan premi JKK, JKM &amp; BPJS Kes (4%) ke Bruto PPh 21 (PMK 168/2023)</span>
+                  </label>
+                  <label class="check-row" id="rowAsnTaxDtp" hidden>
+                    <input type="checkbox" id="asnTaxBorneByGov" checked onchange="runPayroll()" />
+                    <span>PPh 21 Gaji ASN Ditanggung Pemerintah (DTP — tidak memotong THP)</span>
+                  </label>
+                </div>
               </div>
             </div>
 
-            <!-- PANEL NON-ASN BLUD -->
-            <div class="sub-panel" id="panelBludPerkada" hidden>
-              <div class="sub-panel-title">Aturan Kepala Daerah (Perkada) Pegawai Non-ASN BLUD</div>
-              <div class="form-grid">
-                <div class="form-group full">
-                  <label for="bludSkema">Skema Uang Jasa Pengabdian / Pesangon BLUD</label>
-                  <select id="bludSkema" onchange="runSeverance()">
-                    <option value="PERKADA_PENGALI" selected>Pengali Bulan Upah per Tahun Pengabdian (Perbup/Perwalkot)</option>
-                    <option value="ADOPSI_PP35">Mengadopsi Penuh Rumus PP No. 35 Tahun 2021</option>
-                    <option value="NOMINAL_TETAP">Nominal Tetap Sesuai Keputusan Pimpinan BLUD</option>
-                  </select>
+            <!-- RIGHT: HERO CARD + PROPORTION BAR + ITEMIZED PAYSLIP -->
+            <div id="payrollResultCard">
+              <div class="hero-card">
+                <div class="hero-top">
+                  <div class="hero-eyebrow">Take Home Pay (THP) Diterima</div>
+                  <button type="button" class="hero-pill-btn" onclick="document.getElementById('payrollPayslipCard').scrollIntoView({behavior:'smooth'})">
+                    Lihat Rincian &darr;
+                  </button>
                 </div>
-                <div class="form-group">
-                  <label for="bludPengaliPerTahun">Pengali per Tahun Kerja (Bulan Upah)</label>
-                  <input type="number" id="bludPengaliPerTahun" step="0.5" min="0" max="3" value="1" oninput="runSeverance()" />
-                </div>
-                <div class="form-group">
-                  <label for="bludMaxBulan">Batas Maksimal Pengali (Bulan)</label>
-                  <input type="number" id="bludMaxBulan" min="1" max="24" value="9" oninput="runSeverance()" />
-                </div>
-                <div class="form-group full">
-                  <label for="bludNominalTetap">Nominal Tetap (Jika memilih skema Nominal Tetap)</label>
-                  <div class="currency-wrap">
-                    <span class="currency-prefix">Rp</span>
-                    <input type="text" id="bludNominalTetap" class="currency-input" value="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                <div class="hero-amount" id="payThpDisplay">Rp 0</div>
+                <div class="hero-terbilang" id="payTerbilang">Terbilang: Nol Rupiah</div>
+
+                <div class="hero-metrics">
+                  <div class="hero-metric-box">
+                    <div class="hero-metric-label">Total Potongan Pekerja</div>
+                    <div class="hero-metric-val" id="payTotalDeductDisplay">Rp 0</div>
+                  </div>
+                  <div class="hero-metric-box">
+                    <div class="hero-metric-label">Iuran Pemberi Kerja</div>
+                    <div class="hero-metric-val" id="payEmployerCostDisplay">Rp 0</div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div style="margin-top:10px;">
-              <label class="check-row">
-                <input type="checkbox" id="hasValidNikNpwp" checked onchange="runSeverance()" />
-                <span>Pekerja memiliki NIK/NPWP tervalidasi (Tarif normal PPh 21 Final Pesangon)</span>
-              </label>
+              <!-- Horizontal Stacked Proportion Bar -->
+              <div class="proportion-card">
+                <div class="prop-header">
+                  <span>Proporsi Distribusi Upah Bruto</span>
+                  <span id="payBrutoHeaderVal">Bruto: Rp 0</span>
+                </div>
+                <div class="prop-track">
+                  <div class="prop-seg prop-seg-thp" id="barPayThp" style="width: 0%;"></div>
+                  <div class="prop-seg prop-seg-bpjs" id="barPayBpjs" style="width: 0%;"></div>
+                  <div class="prop-seg prop-seg-tax" id="barPayTax" style="width: 0%;"></div>
+                  <div class="prop-seg prop-seg-other" id="barPayOther" style="width: 0%;"></div>
+                </div>
+                <div class="prop-legend">
+                  <span class="prop-legend-item"><span class="prop-dot" style="background:#042F2E;"></span>THP (<span id="pctPayThp">0.0%</span>)</span>
+                  <span class="prop-legend-item"><span class="prop-dot" style="background:#0D9488;"></span>BPJS/Taspen (<span id="pctPayBpjs">0.0%</span>)</span>
+                  <span class="prop-legend-item"><span class="prop-dot" style="background:#EAB308;"></span>PPh 21 (<span id="pctPayTax">0.0%</span>)</span>
+                  <span class="prop-legend-item" id="legPayOtherWrap" hidden><span class="prop-dot" style="background:#94A3B8;"></span>Lainnya (<span id="pctPayOther">0.0%</span>)</span>
+                </div>
+              </div>
+
+              <!-- Itemized Payslip Card -->
+              <div class="card" id="payrollPayslipCard">
+                <div class="card-header">
+                  <div class="card-title">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Itemized Payslip
+                  </div>
+                  <span class="hint">Plafon Kes: Rp12 Jt | JP: Rp11,086 Jt</span>
+                </div>
+
+                <table class="acc-table">
+                  <thead>
+                    <tr>
+                      <th>Komponen Rincian</th>
+                      <th class="amt">Nominal</th>
+                    </tr>
+                  </thead>
+                  <tbody id="payrollResultBody"></tbody>
+                </table>
+
+                <div class="legal-box" id="payrollLegalBox"></div>
+
+                <div class="btn-row">
+                  <button type="button" class="btn btn-primary" onclick="saveCurrentSimulation('PAYROLL')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Simpan Riwayat
+                  </button>
+                  <button type="button" class="btn btn-outline" onclick="printReport('PAYROLL')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    Cetak PDF
+                  </button>
+                  <button type="button" class="btn btn-outline" onclick="exportExcel('PAYROLL')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Ekspor Excel
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- HASIL PESANGON / PKWT -->
-        <div id="severanceResultCard">
+        <!-- =============================================================== -->
+        <!-- TAB 2: PESANGON (PKWTT) & KOMPENSASI PKWT                       -->
+        <!-- =============================================================== -->
+        <div id="view-severance" class="tab-view" hidden>
+          <div class="alert alert-warning" id="asnWarningBanner" hidden>
+            <div>
+              <strong>Pengecualian Rezim Hukum ASN:</strong>
+              <p id="asnWarningText" style="margin-top:3px;"></p>
+            </div>
+          </div>
+
+          <div class="bento-grid" id="severanceMainGrid">
+            <!-- LEFT: INPUT PESANGON / PKWT -->
+            <div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    Parameter Hubungan Kerja &amp; Masa Kerja
+                  </div>
+                  <span class="pill-tag" id="sevSchemeTag">Swasta Umum</span>
+                </div>
+
+                <div class="seg-control">
+                  <button type="button" class="seg-btn active" id="btnModePkwtt" onclick="setContractStatus('PKWTT')">
+                    PKWTT (Tetap — Pesangon)
+                  </button>
+                  <button type="button" class="seg-btn" id="btnModePkwt" onclick="setContractStatus('PKWT')">
+                    PKWT (Kontrak — Kompensasi)
+                  </button>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="sevUpahTetap">Upah Tetap Dasar Hitung (Pokok + Tunj. Tetap)</label>
+                    <div class="currency-wrap">
+                      <span class="currency-prefix">Rp</span>
+                      <input type="text" id="sevUpahTetap" value="" placeholder="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Masa Kerja</label>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                      <div>
+                        <input type="number" id="sevYears" min="0" max="50" value="" placeholder="0" oninput="runSeverance()" />
+                        <span class="hint">Tahun</span>
+                      </div>
+                      <div>
+                        <input type="number" id="sevMonths" min="0" max="11" value="" placeholder="0" oninput="runSeverance()" />
+                        <span class="hint">Bulan</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- FIELD KHUSUS PKWTT -->
+                <div id="pkwttFieldsGroup" style="margin-top:13px;">
+                  <div class="form-grid">
+                    <div class="form-group full">
+                      <label for="phkReasonKey">Alasan Pengakhiran Hubungan Kerja (PP No. 35 Tahun 2021)</label>
+                      <select id="phkReasonKey" onchange="runSeverance()"></select>
+                    </div>
+                    <div class="form-group">
+                      <label for="sevSisaCuti">Sisa Cuti Tahunan Belum Gugur (Hari)</label>
+                      <input type="number" id="sevSisaCuti" min="0" max="60" value="" placeholder="0" oninput="runSeverance()" />
+                    </div>
+                    <div class="form-group">
+                      <label for="sevHariKerja">Pembagi Hari Kerja / Bulan</label>
+                      <select id="sevHariKerja" onchange="runSeverance()">
+                        <option value="25" selected>25 Hari (6 Hari Kerja / Minggu)</option>
+                        <option value="21">21 Hari (5 Hari Kerja / Minggu)</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="sevOngkosPulang">Ongkos Pulang ke Tempat Penerimaan</label>
+                      <div class="currency-wrap">
+                        <span class="currency-prefix">Rp</span>
+                        <input type="text" id="sevOngkosPulang" value="" placeholder="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="sevHakLain">Hak Lainnya / Uang Pisah PKB</label>
+                      <div class="currency-wrap">
+                        <span class="currency-prefix">Rp</span>
+                        <input type="text" id="sevHakLain" value="" placeholder="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- FIELD KHUSUS PKWT -->
+                <div id="pkwtFieldsGroup" style="margin-top:13px;" hidden>
+                  <div class="form-grid">
+                    <div class="form-group full">
+                      <label class="check-row">
+                        <input type="checkbox" id="pkwtPhkDini" onchange="togglePkwtDini(); runSeverance()" />
+                        <span>Pemutusan PKWT sebelum jangka waktu berakhir oleh Pemberi Kerja (Pasal 17 PP 35/2021)</span>
+                      </label>
+                    </div>
+                    <div class="form-group full" id="pkwtSisaBulanGroup" hidden>
+                      <label for="pkwtSisaBulan">Sisa Jangka Waktu Kontrak yang Belum Dijalani (Bulan)</label>
+                      <input type="number" id="pkwtSisaBulan" min="0" max="60" value="" placeholder="0" oninput="runSeverance()" />
+                    </div>
+                  </div>
+
+                  <div class="sub-panel">
+                    <div class="sub-panel-title">Skema Pemotongan PPh 21 Kompensasi PKWT</div>
+                    <div class="form-grid">
+                      <div class="form-group full">
+                        <label for="pkwtTaxMode">Status Kontrak Setelah Pencairan</label>
+                        <select id="pkwtTaxMode" onchange="togglePkwtTaxMode(); runSeverance()">
+                          <option value="BULANAN_TER" selected>Kontrak Diperpanjang / Lanjut Bekerja (PPh 21 TER PP 58/2023)</option>
+                          <option value="MASA_PAJAK_TERAKHIR">Kontrak Berakhir &amp; Berhenti Bekerja (Masa Pajak Terakhir PMK 168/2023)</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="pkwtGajiBulanIni">Gaji Bruto Bulan Berjalan</label>
+                        <div class="currency-wrap">
+                          <span class="currency-prefix">Rp</span>
+                          <input type="text" id="pkwtGajiBulanIni" value="" placeholder="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                        </div>
+                      </div>
+                      <div class="form-group" id="pkwtBulanKerjaGroup" hidden>
+                        <label for="pkwtBulanKerjaThn">Jumlah Bulan Bekerja di Tahun Ini</label>
+                        <input type="number" id="pkwtBulanKerjaThn" min="1" max="12" value="" placeholder="1–12" oninput="runSeverance()" />
+                      </div>
+                      <div class="form-group" id="pkwtAkumBrutoGroup" hidden>
+                        <label for="pkwtAkumBruto">Akumulasi Bruto Sebelum Bulan Ini</label>
+                        <div class="currency-wrap">
+                          <span class="currency-prefix">Rp</span>
+                          <input type="text" id="pkwtAkumBruto" value="" placeholder="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                        </div>
+                      </div>
+                      <div class="form-group" id="pkwtPphPrevGroup" hidden>
+                        <label for="pkwtPphPrev">PPh 21 Sudah Dipotong Sebelumnya</label>
+                        <div class="currency-wrap">
+                          <span class="currency-prefix">Rp</span>
+                          <input type="text" id="pkwtPphPrev" value="" placeholder="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- PANEL MIKRO/KECIL -->
+                <div class="sub-panel" id="panelMikroKecil" hidden>
+                  <div class="sub-panel-title">Kesepakatan Usaha Mikro / Kecil (Pasal 18 &amp; 59 PP 35/2021)</div>
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label for="mikroPersen">Persentase Kesepakatan (% dari Standar)</label>
+                      <input type="number" id="mikroPersen" min="0" max="200" value="50" oninput="runSeverance()" />
+                    </div>
+                    <div class="form-group">
+                      <label for="mikroNominal">Atau Nominal Kesepakatan Bulat</label>
+                      <div class="currency-wrap">
+                        <span class="currency-prefix">Rp</span>
+                        <input type="text" id="mikroNominal" value="" placeholder="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                      </div>
+                      <span class="hint">Isi &gt; 0 jika disepakati angka bulat</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- PANEL BUMN / BUMD -->
+                <div class="sub-panel" id="panelBumnBumd" hidden>
+                  <div class="sub-panel-title">Penyesuaian PKB / Peraturan Direksi BUMN &amp; BUMD</div>
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label for="bumnUpOverride">Override Pengali UP (Kosong = Standar)</label>
+                      <input type="number" id="bumnUpOverride" step="0.25" min="0" max="5" placeholder="Contoh: 2.0" oninput="runSeverance()" />
+                    </div>
+                    <div class="form-group">
+                      <label for="bumnUpmkOverride">Override Pengali UPMK (Kosong = Standar)</label>
+                      <input type="number" id="bumnUpmkOverride" step="0.25" min="0" max="5" placeholder="Contoh: 1.5" oninput="runSeverance()" />
+                    </div>
+                    <div class="form-group full">
+                      <label for="bumnTaliAsih">Penghargaan Purna Bakti / Tali Asih Khusus</label>
+                      <div class="currency-wrap">
+                        <span class="currency-prefix">Rp</span>
+                        <input type="text" id="bumnTaliAsih" value="" placeholder="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- PANEL NON-ASN BLUD -->
+                <div class="sub-panel" id="panelBludPerkada" hidden>
+                  <div class="sub-panel-title">Aturan Kepala Daerah (Perkada) Pegawai Non-ASN BLUD</div>
+                  <div class="form-grid">
+                    <div class="form-group full">
+                      <label for="bludSkema">Skema Uang Jasa Pengabdian / Pesangon BLUD</label>
+                      <select id="bludSkema" onchange="runSeverance()">
+                        <option value="PERKADA_PENGALI" selected>Pengali Bulan Upah per Tahun Pengabdian (Perbup/Perwalkot)</option>
+                        <option value="ADOPSI_PP35">Mengadopsi Penuh Rumus PP No. 35 Tahun 2021</option>
+                        <option value="NOMINAL_TETAP">Nominal Tetap Sesuai Keputusan Pimpinan BLUD</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="bludPengaliPerTahun">Pengali per Tahun Kerja (Bulan Upah)</label>
+                      <input type="number" id="bludPengaliPerTahun" step="0.5" min="0" max="3" value="1" oninput="runSeverance()" />
+                    </div>
+                    <div class="form-group">
+                      <label for="bludMaxBulan">Batas Maksimal Pengali (Bulan)</label>
+                      <input type="number" id="bludMaxBulan" min="1" max="24" value="9" oninput="runSeverance()" />
+                    </div>
+                    <div class="form-group full">
+                      <label for="bludNominalTetap">Nominal Tetap (Jika memilih skema Nominal Tetap)</label>
+                      <div class="currency-wrap">
+                        <span class="currency-prefix">Rp</span>
+                        <input type="text" id="bludNominalTetap" value="" placeholder="0" oninput="formatCurrencyInput(this); runSeverance()" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top:11px;">
+                  <label class="check-row">
+                    <input type="checkbox" id="hasValidNikNpwp" checked onchange="runSeverance()" />
+                    <span>Pekerja memiliki NIK/NPWP tervalidasi (Tarif normal PPh 21 Final Pesangon)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: HERO CARD + PROPORTION BAR + ITEMIZED SEVERANCE -->
+            <div id="severanceResultCard">
+              <div class="hero-card">
+                <div class="hero-top">
+                  <div class="hero-eyebrow" id="sevHeroEyebrow">Total Hak Bersih Diterima (Take Home Pay)</div>
+                  <button type="button" class="hero-pill-btn" onclick="document.getElementById('sevLedgerCard').scrollIntoView({behavior:'smooth'})">
+                    Lihat Rincian &darr;
+                  </button>
+                </div>
+                <div class="hero-amount" id="sevThpDisplay">Rp 0</div>
+                <div class="hero-terbilang" id="sevTerbilang">Terbilang: Nol Rupiah</div>
+
+                <div class="hero-metrics">
+                  <div class="hero-metric-box">
+                    <div class="hero-metric-label">Total Hak Bruto Sebelum Pajak</div>
+                    <div class="hero-metric-val" id="sevBrutoDisplay">Rp 0</div>
+                  </div>
+                  <div class="hero-metric-box">
+                    <div class="hero-metric-label">Potongan PPh 21</div>
+                    <div class="hero-metric-val" id="sevTaxDisplay">Rp 0</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Proportion Bar -->
+              <div class="proportion-card">
+                <div class="prop-header">
+                  <span>Proporsi Paket Hak &amp; Pajak</span>
+                  <span id="sevTaxSchemeBadge">PPh 21 Final PP 68/2009</span>
+                </div>
+                <div class="prop-track">
+                  <div class="prop-seg prop-seg-thp" id="barSevThp" style="width: 0%;"></div>
+                  <div class="prop-seg prop-seg-tax" id="barSevTax" style="width: 0%;"></div>
+                </div>
+                <div class="prop-legend">
+                  <span class="prop-legend-item"><span class="prop-dot" style="background:#042F2E;"></span>Hak Bersih Diterima (<span id="pctSevThp">0.0%</span>)</span>
+                  <span class="prop-legend-item"><span class="prop-dot" style="background:#EAB308;"></span>Potongan PPh 21 (<span id="pctSevTax">0.0%</span>)</span>
+                </div>
+              </div>
+
+              <div class="card" id="sevLedgerCard">
+                <div class="card-header">
+                  <div class="card-title">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Rincian Hak &amp; Perhitungan PPh 21
+                  </div>
+                </div>
+
+                <table class="acc-table">
+                  <thead>
+                    <tr>
+                      <th>Uraian Komponen</th>
+                      <th class="amt">Nominal</th>
+                    </tr>
+                  </thead>
+                  <tbody id="severanceResultBody"></tbody>
+                </table>
+
+                <div class="legal-box" id="severanceLegalBox"></div>
+
+                <div class="btn-row">
+                  <button type="button" class="btn btn-primary" onclick="saveCurrentSimulation('SEVERANCE')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Simpan Riwayat
+                  </button>
+                  <button type="button" class="btn btn-outline" onclick="printReport('SEVERANCE')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    Cetak PDF
+                  </button>
+                  <button type="button" class="btn btn-outline" onclick="exportExcel('SEVERANCE')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Ekspor Excel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- TAB 3: REGULASI & MATRIKS ACUAN HUKUM                           -->
+        <!-- =============================================================== -->
+        <div id="view-regulations" class="tab-view" hidden>
           <div class="card">
             <div class="card-header">
               <div class="card-title">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                Rincian Hak &amp; PPh 21
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                Pustaka Regulasi &amp; Acuan Parameter Hitung
               </div>
-              <span class="pill-tag" id="sevTaxSchemeBadge">PPh 21 Final PP 68/2009</span>
+              <span class="pill-tag" id="regActiveEntityBadge">Profil: Swasta Umum</span>
             </div>
 
-            <div class="kpi-grid">
-              <div class="kpi-box highlight">
-                <div class="kpi-label">Total Hak Bersih Diterima (Take Home Pay)</div>
-                <div class="kpi-value" id="sevThpDisplay">Rp 0</div>
-              </div>
-              <div class="kpi-box">
-                <div class="kpi-label">Total Hak Bruto Sebelum Pajak</div>
-                <div class="kpi-value pos" id="sevBrutoDisplay">Rp 0</div>
-              </div>
-              <div class="kpi-box">
-                <div class="kpi-label">Potongan PPh 21</div>
-                <div class="kpi-value neg" id="sevTaxDisplay">Rp 0</div>
-              </div>
+            <div class="reg-subtabs">
+              <button type="button" class="seg-btn active" id="btnRegTabCatalog" onclick="switchRegSubtab('CATALOG')">
+                Daftar Peraturan &amp; Dasar Hukum
+              </button>
+              <button type="button" class="seg-btn" id="btnRegTabMatrix" onclick="switchRegSubtab('MATRIX')">
+                Matriks Tarif, Pengali &amp; Plafon
+              </button>
             </div>
 
-            <div class="terbilang-box" id="sevTerbilang">Nol Rupiah</div>
+            <!-- SUB-VIEW A: KATALOG REGULASI -->
+            <div id="regSubCatalog">
+              <div class="form-grid" style="margin-bottom:14px;">
+                <div class="form-group">
+                  <input type="text" id="regSearchInput" placeholder="Cari nomor peraturan, pasal, atau kata kunci (mis. PP 35/2021, TER, Taspen)..." oninput="renderRegulationsView()" />
+                </div>
+                <div class="form-group">
+                  <select id="regCategoryFilter" onchange="renderRegulationsView()">
+                    <option value="ALL" selected>Semua Bidang Regulasi</option>
+                    <option value="MATCH_ENTITY">Berlaku pada Profil Instansi Terpilih</option>
+                    <option value="KETENAGAKERJAAN">Ketenagakerjaan, Upah, PKWT &amp; Pesangon</option>
+                    <option value="JAMSOS">Jaminan Sosial (BPJS Kesehatan, BPJS TK &amp; Taspen)</option>
+                    <option value="PERPAJAKAN">Perpajakan PPh Pasal 21 (TER &amp; Final)</option>
+                    <option value="ASN_BLUD">Aparatur Sipil Negara (ASN) &amp; BLUD</option>
+                  </select>
+                </div>
+              </div>
 
-            <table class="acc-table">
-              <thead>
-                <tr>
-                  <th>Uraian Komponen</th>
-                  <th class="amt">Nominal</th>
-                </tr>
-              </thead>
-              <tbody id="severanceResultBody"></tbody>
-            </table>
+              <div class="reg-grid" id="regCardsContainer"></div>
+            </div>
 
-            <div class="legal-box" id="severanceLegalBox"></div>
+            <!-- SUB-VIEW B: MATRIKS TARIF & PENGALI RESMI -->
+            <div id="regSubMatrix" hidden>
+              <div class="reg-matrix-grid">
+                <div class="sub-panel" style="margin-top:0;">
+                  <div class="sub-panel-title">1. Tabel Uang Pesangon (UP) — Pasal 40 Ayat (2) PP 35/2021</div>
+                  <div class="table-wrap">
+                    <table class="acc-table" style="margin-bottom:0;">
+                      <thead>
+                        <tr>
+                          <th>Masa Kerja</th>
+                          <th class="amt">Besaran UP</th>
+                        </tr>
+                      </thead>
+                      <tbody id="regUpTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
 
-            <div class="btn-row">
-              <button class="btn btn-primary" onclick="saveCurrentSimulation('SEVERANCE')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                Simpan Riwayat
-              </button>
-              <button class="btn btn-outline" onclick="printReport('SEVERANCE')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Cetak PDF
-              </button>
-              <button class="btn btn-outline" onclick="exportExcel('SEVERANCE')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Ekspor Excel
-              </button>
+                <div class="sub-panel" style="margin-top:0;">
+                  <div class="sub-panel-title">2. Tabel Uang Penghargaan Masa Kerja (UPMK) — Pasal 40 Ayat (3)</div>
+                  <div class="table-wrap">
+                    <table class="acc-table" style="margin-bottom:0;">
+                      <thead>
+                        <tr>
+                          <th>Masa Kerja</th>
+                          <th class="amt">Besaran UPMK</th>
+                        </tr>
+                      </thead>
+                      <tbody id="regUpmkTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="reg-matrix-grid">
+                <div class="sub-panel" style="margin-top:0;">
+                  <div class="sub-panel-title">3. Tarif &amp; Plafon Iuran BPJS serta PT Taspen</div>
+                  <div class="table-wrap">
+                    <table class="acc-table" style="margin-bottom:0;">
+                      <thead>
+                        <tr>
+                          <th>Program Jaminan</th>
+                          <th class="amt">Pemberi Kerja</th>
+                          <th class="amt">Pekerja</th>
+                        </tr>
+                      </thead>
+                      <tbody id="regBpjsTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="sub-panel" style="margin-top:0;">
+                  <div class="sub-panel-title">4. Lapisan PPh 21 Final Pesangon (PP 68/2009) &amp; PTKP TER</div>
+                  <div class="table-wrap">
+                    <table class="acc-table" style="margin-bottom:0;">
+                      <thead>
+                        <tr>
+                          <th>Lapisan Penghasilan Bruto / Status PTKP</th>
+                          <th class="amt">Tarif / Kategori</th>
+                        </tr>
+                      </thead>
+                      <tbody id="regTaxTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-panel" style="margin-top:0;">
+                <div class="sub-panel-title">5. Matriks Faktor Pengali PHK PKWTT (Pasal 41–57 PP No. 35 Tahun 2021)</div>
+                <div class="table-wrap">
+                  <table class="acc-table" style="margin-bottom:0;">
+                    <thead>
+                      <tr>
+                        <th>Alasan Pengakhiran Hubungan Kerja</th>
+                        <th class="amt">Pengali UP</th>
+                        <th class="amt">Pengali UPMK</th>
+                        <th class="amt">UPH / Uang Pisah</th>
+                      </tr>
+                    </thead>
+                    <tbody id="regPhkReasonsTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+
+        <!-- =============================================================== -->
+        <!-- TAB 4: RIWAYAT SIMULASI (INDEXEDDB)                             -->
+        <!-- =============================================================== -->
+        <div id="view-history" class="tab-view" hidden>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Arsip Riwayat Simulasi (Lokal Offline)
+              </div>
+              <button type="button" class="btn btn-danger btn-sm" onclick="clearAllHistory()">Hapus Semua</button>
+            </div>
+
+            <div class="form-grid" style="margin-bottom:13px;">
+              <div class="form-group">
+                <input type="text" id="historySearch" placeholder="Cari nama pegawai, instansi, atau jenis simulasi..." oninput="renderHistoryTable()" />
+              </div>
+              <div class="form-group">
+                <select id="historyFilterType" onchange="renderHistoryTable()">
+                  <option value="ALL">Semua Jenis Simulasi</option>
+                  <option value="PAYROLL">Payroll &amp; BPJS/Taspen</option>
+                  <option value="SEVERANCE">Pesangon &amp; Kompensasi PKWT</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="acc-table">
+                <thead>
+                  <tr>
+                    <th>Waktu</th>
+                    <th>Pegawai</th>
+                    <th>Profil Instansi</th>
+                    <th>Modul</th>
+                    <th class="amt">Bruto</th>
+                    <th class="amt">THP Bersih</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- CREATOR FOOTER -->
+        <footer class="app-footer">
+          Dikembangkan oleh <a onclick="toggleCreatorModal(true)">Dul Muid (Bang Dul)</a> • Brebes, Jawa Tengah • &copy; 2026
+        </footer>
+      </main>
     </div>
-
-    <!-- =================================================================== -->
-    <!-- TAB 3: RIWAYAT SIMULASI (INDEXEDDB)                                 -->
-    <!-- =================================================================== -->
-    <div id="view-history" class="tab-view" hidden>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Arsip Riwayat Simulasi (Lokal Offline)
-          </div>
-          <button class="btn btn-danger btn-sm" onclick="clearAllHistory()">Hapus Semua</button>
-        </div>
-
-        <div class="form-grid" style="margin-bottom:12px;">
-          <div class="form-group">
-            <input type="text" id="historySearch" placeholder="Cari nama pegawai, instansi, atau jenis simulasi..." oninput="renderHistoryTable()" />
-          </div>
-          <div class="form-group">
-            <select id="historyFilterType" onchange="renderHistoryTable()">
-              <option value="ALL">Semua Jenis Simulasi</option>
-              <option value="PAYROLL">Payroll &amp; BPJS/Taspen</option>
-              <option value="SEVERANCE">Pesangon &amp; Kompensasi PKWT</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="table-wrap">
-          <table class="acc-table">
-            <thead>
-              <tr>
-                <th>Waktu</th>
-                <th>Pegawai</th>
-                <th>Profil Instansi</th>
-                <th>Modul</th>
-                <th class="amt">Bruto</th>
-                <th class="amt">THP Bersih</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="historyTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- CREATOR FOOTER -->
-    <footer class="app-footer">
-      Dikembangkan oleh <a onclick="toggleCreatorModal(true)">Dul Muid (Bang Dul)</a> • Brebes, Jawa Tengah • &copy; 2026
-    </footer>
-  </main>
+  </div>
 
   <!-- MOBILE FLOATING LIVE THP BAR -->
   <div class="mobile-live-bar" id="mobileLiveBar">
     <div>
-      <div class="mlb-label" id="mobileLiveLabel">Estimasi Take Home Pay</div>
+      <div class="mlb-label" id="mobileLiveLabel">Take Home Pay Bulanan</div>
       <div class="mlb-val" id="mobileLiveAmount">Rp 0</div>
     </div>
     <button type="button" class="mlb-btn" onclick="scrollToResultCard()">Lihat Rincian &darr;</button>
   </div>
 
-  <!-- MOBILE BOTTOM NAVIGATION -->
+  <!-- MOBILE BOTTOM NAVIGATION (4 TAB) -->
   <nav class="mobile-nav">
     <div class="mobile-nav-inner">
-      <button class="mob-tab active" data-tab="payroll" onclick="switchTab('payroll')">
+      <button type="button" class="mob-tab active" data-tab="payroll" onclick="switchTab('payroll')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        <span>Payroll &amp; BPJS</span>
+        <span>Payroll</span>
       </button>
-      <button class="mob-tab" data-tab="severance" onclick="switchTab('severance')">
+      <button type="button" class="mob-tab" data-tab="severance" onclick="switchTab('severance')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <span>Pesangon/PKWT</span>
+        <span>Pesangon</span>
       </button>
-      <button class="mob-tab" data-tab="history" onclick="switchTab('history')">
+      <button type="button" class="mob-tab" data-tab="regulations" onclick="switchTab('regulations')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Regulasi</span>
+      </button>
+      <button type="button" class="mob-tab" data-tab="history" onclick="switchTab('history')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span>Riwayat (<span id="mobHistoryCount">0</span>)</span>
       </button>
@@ -1590,8 +2360,8 @@
         <img src="icon-192.png" alt="Logo SimKerja ID" onerror="this.style.display='none'" />
         <div>
           <span class="creator-chip">INFORMASI PENGEMBANG</span>
-          <h3 style="font-size:16px; color:var(--text); font-weight:800;">Simulator Ketenagakerjaan Indonesia</h3>
-          <p style="font-size:11.5px; color:var(--text-muted);">Versi 2.1 • Offline-First PWA</p>
+          <h3 style="font-size:16px; color:var(--text); font-weight:800;">SimKerja ID</h3>
+          <p style="font-size:11.5px; color:var(--text-muted);">Simulator Ketenagakerjaan Indonesia • v3.1</p>
         </div>
       </div>
 
@@ -1625,7 +2395,7 @@
 
   <script>
     /* =========================================================================
-       1. LEGAL RULES ENGINE
+       1. LEGAL RULES ENGINE & REGULATION CATALOG
        ========================================================================= */
     const BPJS_CAPS_2026 = {
       KESEHATAN_MAX_UPAH: 12000000,
@@ -1692,12 +2462,12 @@
         shortTag: "ASN PPPK",
         category: "PEMERINTAH",
         bpjsKes: { active: true, empRate: 0.04, workerRate: 0.01 },
-        bpjsTk: { provider: "BPJS_TK", jkk: true, jkm: true, jht: true, jp: true, jkp: false },
+        bpjsTk: { provider: "BPJS_TK", jkk: true, jkm: true, jht: true, jp: false, jkp: false },
         severanceEligible: false,
         asnMessage: "Pegawai Pemerintah dengan Perjanjian Kerja (PPPK) tidak tunduk pada kompensasi PKWT/pesangon PP 35/2021. Jaminan hari tua dan pensiun PPPK diatur berdasarkan UU No. 20 Tahun 2023 tentang ASN serta PP No. 49 Tahun 2018.",
         legalBasis: [
           "UU No. 20 Tahun 2023 tentang Aparatur Sipil Negara (ASN)",
-          "PP No. 49 Tahun 2018 tentang Manajemen PPPK",
+          "PP No. 49 Tahun 2018 tentang Manajemen PPPK (Pasal 75–76)",
           "Perpres No. 64 Tahun 2020 (BPJS Kesehatan)"
         ]
       },
@@ -1715,6 +2485,146 @@
         ]
       }
     };
+
+    const REGULATION_CATALOG = [
+      {
+        id: "UU-6-2023",
+        category: "KETENAGAKERJAAN",
+        categoryLabel: "Ketenagakerjaan & Upah",
+        number: "UU No. 6 Tahun 2023",
+        title: "Penetapan Perppu No. 2 Tahun 2022 tentang Cipta Kerja",
+        entities: ["SWASTA_UMUM", "SWASTA_MIKRO_KECIL", "BUMN_BUMD"],
+        summary: "Payung hukum klaster ketenagakerjaan yang mengubah sejumlah ketentuan UU No. 13 Tahun 2003, mencakup ketentuan PKWT, alih daya, waktu kerja, pengupahan (Pasal 88–90B), serta hak akibat pemutusan hubungan kerja (Pasal 156).",
+        points: [
+          "Menetapkan struktur dan skala upah serta pengecualian upah minimum bagi Usaha Mikro dan Kecil (Pasal 90B).",
+          "Menjadi dasar kewajiban pembayaran Uang Kompensasi PKWT dan komponen hak PHK (UP, UPMK, UPH)."
+        ]
+      },
+      {
+        id: "PP-35-2021",
+        category: "KETENAGAKERJAAN",
+        categoryLabel: "PKWT & Pesangon PHK",
+        number: "PP No. 35 Tahun 2021",
+        title: "Perjanjian Kerja Waktu Tertentu, Alih Daya, Waktu Kerja dan Waktu Istirahat, dan Pemutusan Hubungan Kerja",
+        entities: ["SWASTA_UMUM", "SWASTA_MIKRO_KECIL", "BUMN_BUMD", "NON_ASN_BLUD"],
+        summary: "Peraturan pelaksana teknis yang merinci rumus perhitungan uang kompensasi PKWT, ganti rugi pemutusan dini PKWT, besaran dasar Uang Pesangon (UP), Uang Penghargaan Masa Kerja (UPMK), Uang Penggantian Hak (UPH), serta faktor pengali berdasarkan alasan PHK.",
+        points: [
+          "Pasal 15–17: Uang Kompensasi PKWT = (Masa Kerja dalam bulan / 12) × 1 bulan upah; pemutusan dini mewajibkan ganti rugi sisa kontrak.",
+          "Pasal 18 & 59: Besaran kompensasi PKWT dan pesangon pada Usaha Mikro/Kecil ditentukan berdasarkan kesepakatan.",
+          "Pasal 40–57: Menetapkan tabel masa kerja UP (1–9 bulan upah), UPMK (2–10 bulan upah), dan faktor pengali (0,5x hingga 2x) sesuai alasan PHK."
+        ]
+      },
+      {
+        id: "PP-36-2021",
+        category: "KETENAGAKERJAAN",
+        categoryLabel: "Pengupahan",
+        number: "PP No. 36 Tahun 2021 jo. PP No. 51 Tahun 2023",
+        title: "Pengupahan",
+        entities: ["SWASTA_UMUM", "SWASTA_MIKRO_KECIL", "BUMN_BUMD"],
+        summary: "Mengatur komponen upah yang terdiri atas upah pokok dan tunjangan tetap (minimal 75% dari jumlah upah pokok dan tunjangan tetap) serta tunjangan tidak tetap sebagai dasar penghitungan hak normatif.",
+        points: [
+          "Upah Tetap (Gaji Pokok + Tunjangan Tetap) menjadi dasar perhitungan iuran BPJS, uang pesangon, dan kompensasi PKWT.",
+          "Menetapkan pembagi upah harian: 25 hari kerja untuk sistem 6 hari kerja/minggu atau 21 hari kerja untuk sistem 5 hari kerja/minggu."
+        ]
+      },
+      {
+        id: "PERPRES-64-2020",
+        category: "JAMSOS",
+        categoryLabel: "Jaminan Kesehatan",
+        number: "Perpres No. 64 Tahun 2020 jo. Perpres No. 59 Tahun 2024",
+        title: "Perubahan Kedua atas Perpres No. 82 Tahun 2018 tentang Jaminan Kesehatan",
+        entities: ["SWASTA_UMUM", "SWASTA_MIKRO_KECIL", "BUMN_BUMD", "ASN_PNS", "ASN_PPPK", "NON_ASN_BLUD"],
+        summary: "Mengatur tarif iuran BPJS Kesehatan bagi Peserta Pekerja Penerima Upah (PPU) Badan Usaha maupun Pemerintah beserta batas atas upah perhitungan iuran.",
+        points: [
+          "Total iuran wajib sebesar 5% dari upah tetap bulanan: 4% ditanggung Pemberi Kerja dan 1% dipotong dari Pekerja.",
+          "Batas paling tinggi upah sebagai dasar perhitungan iuran ditetapkan sebesar Rp 12.000.000 per bulan.",
+          "Menanggung maksimal 5 orang anggota keluarga inti; tambahan anggota keluarga ke-4 dst. dikenakan iuran 1% per orang ditanggung pekerja."
+        ]
+      },
+      {
+        id: "PP-44-45-2015",
+        category: "JAMSOS",
+        categoryLabel: "BPJS Ketenagakerjaan",
+        number: "PP No. 44 Tahun 2015 & PP No. 45 Tahun 2015",
+        title: "Penyelenggaraan Program JKK, JKM, dan Jaminan Pensiun (JP) serta PP No. 46 Tahun 2015 (JHT)",
+        entities: ["SWASTA_UMUM", "SWASTA_MIKRO_KECIL", "BUMN_BUMD", "ASN_PPPK", "NON_ASN_BLUD"],
+        summary: "Menetapkan struktur iuran 4 program jaminan sosial ketenagakerjaan bagi pemberi kerja dan pekerja serta batas maksimal upah untuk Jaminan Pensiun.",
+        points: [
+          "JKK: 0,24% – 1,74% sesuai 5 kelompok tingkat risiko lingkungan kerja (ditanggung penuh Pemberi Kerja).",
+          "JKM: 0,30% dari upah bulanan (ditanggung penuh Pemberi Kerja).",
+          "JHT: 5,70% dari upah bulanan (3,70% ditanggung Pemberi Kerja + 2,00% dipotong dari Pekerja).",
+          "JP: 3,00% dari upah bulanan (2,00% Pemberi Kerja + 1,00% Pekerja) dengan batas atas upah diperbarui berkala (Rp 11.086.300)."
+        ]
+      },
+      {
+        id: "PP-37-2021",
+        category: "JAMSOS",
+        categoryLabel: "Jaminan Kehilangan Pekerjaan",
+        number: "PP No. 37 Tahun 2021",
+        title: "Penyelenggaraan Program Jaminan Kehilangan Pekerjaan (JKP)",
+        entities: ["SWASTA_UMUM", "BUMN_BUMD"],
+        summary: "Memberikan perlindungan bagi pekerja/buruh yang mengalami PHK berupa uang tunai, akses informasi pasar kerja, dan pelatihan kerja tanpa menambah beban iuran baru bagi pekerja maupun perusahaan.",
+        points: [
+          "Iuran JKP sebesar 0,46% bersumber dari subsidi Pemerintah Pusat (0,22%) dan rekomposisi iuran JKK (0,14%) serta JKM (0,10%).",
+          "Pekerja tidak dikenakan potongan gaji tambahan (Rp 0) untuk kepesertaan JKP."
+        ]
+      },
+      {
+        id: "PP-58-2023",
+        category: "PERPAJAKAN",
+        categoryLabel: "PPh Pasal 21 TER",
+        number: "PP No. 58 Tahun 2023 & PMK No. 168 Tahun 2023",
+        title: "Tarif Pemotongan Pajak Penghasilan Pasal 21 atas Penghasilan Sehubungan dengan Pekerjaan, Jasa, atau Kegiatan Wajib Pajak Orang Pribadi",
+        entities: ["SWASTA_UMUM", "SWASTA_MIKRO_KECIL", "BUMN_BUMD", "ASN_PNS", "ASN_PPPK", "NON_ASN_BLUD"],
+        summary: "Menyederhanakan perhitungan pemotongan PPh Pasal 21 masa pajak selain masa pajak terakhir menggunakan Tarif Efektif Rata-rata (TER) Bulanan yang dikelompokkan berdasarkan status PTKP (Kategori A, B, dan C).",
+        points: [
+          "Kategori TER A: TK/0, TK/1, K/0; Kategori TER B: TK/2, K/1, TK/3, K/2; Kategori TER C: K/3.",
+          "Penghasilan bruto PPh 21 mencakup penghasilan teratur, tidak teratur, serta premi jaminan kecelakaan kerja, kematian, dan kesehatan yang dibayar pemberi kerja.",
+          "Pada masa pajak terakhir (Desember atau saat berhenti bekerja), PPh 21 dihitung ulang menggunakan tarif progresif Pasal 17 UU PPh dikurangi biaya jabatan dan PTKP."
+        ]
+      },
+      {
+        id: "PP-68-2009",
+        category: "PERPAJAKAN",
+        categoryLabel: "PPh 21 Final Pesangon",
+        number: "PP No. 68 Tahun 2009",
+        title: "Tarif Pajak Penghasilan Pasal 21 atas Penghasilan Berupa Uang Pesangon, Uang Manfaat Pensiun, Tunjangan Hari Tua, dan Jaminan Hari Tua yang Dibayarkan Sekaligus",
+        entities: ["SWASTA_UMUM", "SWASTA_MIKRO_KECIL", "BUMN_BUMD", "NON_ASN_BLUD"],
+        summary: "Mengatur pengenaan PPh Pasal 21 yang bersifat final dengan tarif progresif khusus atas uang pesangon, uang penghargaan masa kerja, dan uang penggantian hak yang dibayarkan sekaligus.",
+        points: [
+          "Lapisan 1: Penghasilan bruto s.d. Rp 50.000.000 dikenakan tarif 0%.",
+          "Lapisan 2: Di atas Rp 50.000.000 s.d. Rp 100.000.000 dikenakan tarif 5%.",
+          "Lapisan 3: Di atas Rp 100.000.000 s.d. Rp 500.000.000 dikenakan tarif 15%.",
+          "Lapisan 4: Di atas Rp 500.000.000 dikenakan tarif 25%."
+        ]
+      },
+      {
+        id: "UU-20-2023",
+        category: "ASN_BLUD",
+        categoryLabel: "Aparatur Sipil Negara",
+        number: "UU No. 20 Tahun 2023 & PP No. 70 Tahun 2015 jo. PP No. 66 Tahun 2017",
+        title: "Aparatur Sipil Negara (ASN) serta Jaminan Kecelakaan Kerja dan Jaminan Kematian Pegawai ASN (PT Taspen)",
+        entities: ["ASN_PNS", "ASN_PPPK"],
+        summary: "Mengatur hak kepegawaian, jaminan sosial, dan pemberhentian PNS serta PPPK. ASN tidak tunduk pada skema pesangon UU Cipta Kerja melainkan sistem jaminan pensiun dan Tabungan Hari Tua (THT).",
+        points: [
+          "PNS mengikuti program THT (3,25%) dan Iuran Pensiun (4,75%) melalui PT Taspen, serta JKK (0,24%) dan JKM (0,72%) yang ditanggung pemerintah.",
+          "PPPK dikelola berdasarkan PP No. 49 Tahun 2018 dengan kepesertaan jaminan hari tua dan kesehatan sesuai ketentuan perundang-undangan."
+        ]
+      },
+      {
+        id: "PERMENDAGRI-79-2018",
+        category: "ASN_BLUD",
+        categoryLabel: "Pegawai Non-ASN BLUD",
+        number: "Permendagri No. 79 Tahun 2018",
+        title: "Badan Layanan Umum Daerah (BLUD)",
+        entities: ["NON_ASN_BLUD"],
+        summary: "Memberikan fleksibilitas pengelolaan sumber daya manusia dan remunerasi pada unit kerja BLUD (seperti RSUD dan Puskesmas) untuk mengangkat pegawai Non-ASN berdasarkan Peraturan Kepala Daerah.",
+        points: [
+          "Remunerasi, jasa pelayanan (jaspel), serta uang jasa pengabdian pegawai Non-ASN BLUD diatur melalui Peraturan Bupati/Wali Kota (Perkada) atau Keputusan Pimpinan BLUD.",
+          "Pegawai Non-ASN BLUD wajib diikutsertakan dalam program BPJS Kesehatan dan BPJS Ketenagakerjaan."
+        ]
+      }
+    ];
 
     const PHK_REASONS_PP35 = {
       EFISIENSI_CEGAH_RUGI: { label: "Efisiensi untuk Mencegah Kerugian (Pasal 43 ayat 2) — 1x UP + 1x UPMK", upMult: 1.0, upmkMult: 1.0, uphActive: true, uangPisah: false },
@@ -1816,7 +2726,12 @@
     }
 
     function formatCurrencyInput(el) {
-      const val = parseCurrency(el.value);
+      const rawDigits = String(el.value || "").replace(/[^\d]/g, "");
+      if (rawDigits === "") {
+        el.value = "";
+        return;
+      }
+      const val = parseInt(rawDigits, 10) || 0;
       el.value = val.toLocaleString("id-ID");
     }
 
@@ -1847,7 +2762,87 @@
     }
 
     /* =========================================================================
-       3. CALCULATION ENGINES
+       3. QUICK PRESETS & RESET TO EMPTY
+       ========================================================================= */
+    function applyQuickPreset(preset) {
+      const profileSel = document.getElementById("globalEntityProfile");
+      const gp = document.getElementById("payGajiPokok");
+      const tt = document.getElementById("payTunjTetap");
+      const ttt = document.getElementById("payTunjTidakTetap");
+      const pot = document.getElementById("payPotonganLain");
+
+      if (preset === "SWASTA") {
+        profileSel.value = "SWASTA_UMUM";
+        gp.value = "6.500.000";
+        tt.value = "1.500.000";
+        ttt.value = "500.000";
+        pot.value = "";
+        document.getElementById("sevUpahTetap").value = "8.000.000";
+        document.getElementById("pkwtGajiBulanIni").value = "8.500.000";
+      } else if (preset === "BLUD") {
+        profileSel.value = "NON_ASN_BLUD";
+        gp.value = "2.650.000";
+        tt.value = "600.000";
+        ttt.value = "1.250.000";
+        pot.value = "";
+        document.getElementById("sevUpahTetap").value = "3.250.000";
+        document.getElementById("pkwtGajiBulanIni").value = "4.500.000";
+      } else if (preset === "ASN") {
+        profileSel.value = "ASN_PNS";
+        gp.value = "3.780.000";
+        tt.value = "1.220.000";
+        ttt.value = "1.500.000";
+        pot.value = "";
+      } else if (preset === "MIKRO") {
+        profileSel.value = "SWASTA_MIKRO_KECIL";
+        gp.value = "2.500.000";
+        tt.value = "300.000";
+        ttt.value = "200.000";
+        pot.value = "";
+        document.getElementById("sevUpahTetap").value = "2.800.000";
+        document.getElementById("pkwtGajiBulanIni").value = "3.000.000";
+      }
+
+      handleEntityChange();
+      showToast("Preset simulasi diterapkan.");
+    }
+
+    function resetAllInputs() {
+      const emptyIds = [
+        "empName",
+        "payGajiPokok",
+        "payTunjTetap",
+        "payTunjTidakTetap",
+        "payPotonganLain",
+        "sevUpahTetap",
+        "sevYears",
+        "sevMonths",
+        "sevSisaCuti",
+        "sevOngkosPulang",
+        "sevHakLain",
+        "pkwtSisaBulan",
+        "pkwtGajiBulanIni",
+        "pkwtBulanKerjaThn",
+        "pkwtAkumBruto",
+        "pkwtPphPrev",
+        "mikroNominal",
+        "bumnUpOverride",
+        "bumnUpmkOverride",
+        "bumnTaliAsih",
+        "bludNominalTetap"
+      ];
+      emptyIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+      document.getElementById("pkwtPhkDini").checked = false;
+      togglePkwtDini();
+      recalculateAll();
+      showToast("Seluruh input dikosongkan.");
+    }
+
+    /* =========================================================================
+       4. CALCULATION ENGINES
        ========================================================================= */
     function getTerRate(ptkpStatus, monthlyGross) {
       const map = PTKP_PROFILES[ptkpStatus] || PTKP_PROFILES["TK/0"];
@@ -1860,17 +2855,18 @@
     let latestSeveranceData = null;
     let contractStatus = "PKWTT";
     let activeTabName = "payroll";
+    let activeRegSubtab = "CATALOG";
 
     function updateMobileLiveBar() {
       const bar = document.getElementById("mobileLiveBar");
       if (!bar) return;
-      if (activeTabName === "history") {
+      if (activeTabName === "history" || activeTabName === "regulations") {
         bar.classList.add("hide-bar");
         return;
       }
       if (activeTabName === "payroll" && latestPayrollData) {
         bar.classList.remove("hide-bar");
-        document.getElementById("mobileLiveLabel").textContent = "Estimasi Take Home Pay Bulanan";
+        document.getElementById("mobileLiveLabel").textContent = "Take Home Pay Bulanan";
         document.getElementById("mobileLiveAmount").textContent = formatRp(latestPayrollData.thp);
       } else if (activeTabName === "severance") {
         if (!latestSeveranceData) {
@@ -1878,7 +2874,7 @@
         } else {
           bar.classList.remove("hide-bar");
           document.getElementById("mobileLiveLabel").textContent =
-            contractStatus === "PKWT" ? "Estimasi Kompensasi Bersih" : "Estimasi Pesangon Bersih";
+            contractStatus === "PKWT" ? "Kompensasi PKWT Bersih" : "Paket Pesangon Bersih";
           document.getElementById("mobileLiveAmount").textContent = formatRp(latestSeveranceData.thp);
         }
       }
@@ -1947,7 +2943,8 @@
       const isAsn = (profileKey === "ASN_PNS" || profileKey === "ASN_PPPK");
       const pph21PotongPekerja = (isAsn && asnTaxDtp) ? 0 : pph21Terhitung;
 
-      const totalPotonganPekerja = kesWorker + jhtWorker + jpWorker + taspenTht + taspenPensiun + pph21PotongPekerja + potonganLain;
+      const totalBpjsWorker = kesWorker + jhtWorker + jpWorker + taspenTht + taspenPensiun;
+      const totalPotonganPekerja = totalBpjsWorker + pph21PotongPekerja + potonganLain;
       const totalBebanPemberiKerja = kesEmployer + jkkEmployer + jkmEmployer + jhtEmployer + jpEmployer;
       const takeHomePay = Math.max(0, upahBrutoTunai - totalPotonganPekerja);
 
@@ -1955,6 +2952,25 @@
       document.getElementById("payTotalDeductDisplay").textContent = formatRp(totalPotonganPekerja);
       document.getElementById("payEmployerCostDisplay").textContent = formatRp(totalBebanPemberiKerja);
       document.getElementById("payTerbilang").textContent = "Terbilang: " + terbilang(takeHomePay);
+      document.getElementById("payBrutoHeaderVal").textContent = "Bruto: " + formatRp(upahBrutoTunai);
+
+      // Update Proportion Bar
+      const baseProp = Math.max(1, upahBrutoTunai);
+      const pctThp = upahBrutoTunai > 0 ? Math.max(0, Math.min(100, (takeHomePay / baseProp) * 100)) : 0;
+      const pctBpjs = upahBrutoTunai > 0 ? Math.max(0, Math.min(100, (totalBpjsWorker / baseProp) * 100)) : 0;
+      const pctTax = upahBrutoTunai > 0 ? Math.max(0, Math.min(100, (pph21PotongPekerja / baseProp) * 100)) : 0;
+      const pctOther = upahBrutoTunai > 0 ? Math.max(0, Math.min(100, (potonganLain / baseProp) * 100)) : 0;
+
+      document.getElementById("barPayThp").style.width = pctThp.toFixed(1) + "%";
+      document.getElementById("barPayBpjs").style.width = pctBpjs.toFixed(1) + "%";
+      document.getElementById("barPayTax").style.width = pctTax.toFixed(1) + "%";
+      document.getElementById("barPayOther").style.width = pctOther.toFixed(1) + "%";
+
+      document.getElementById("pctPayThp").textContent = pctThp.toFixed(1) + "%";
+      document.getElementById("pctPayBpjs").textContent = pctBpjs.toFixed(1) + "%";
+      document.getElementById("pctPayTax").textContent = pctTax.toFixed(1) + "%";
+      document.getElementById("pctPayOther").textContent = pctOther.toFixed(1) + "%";
+      document.getElementById("legPayOtherWrap").hidden = (potonganLain <= 0);
 
       const rows = [
         { sec: "A. Penerimaan Bruto Pekerja" },
@@ -2030,7 +3046,7 @@
       return Math.floor(fullYears / 3) + 1;
     }
 
-    function calculatePph21FinalPesangon(gross, hasValidNik) {
+    function calculatePph21FinalPesangon(gross) {
       if (gross <= 0) return { totalTax: 0, layers: [] };
       let rem = gross, prev = 0, totalTax = 0;
       const layers = [];
@@ -2038,7 +3054,7 @@
         if (rem <= 0) break;
         const width = b.max === Infinity ? rem : b.max - prev;
         const dpp = Math.min(rem, width);
-        const effRate = hasValidNik ? b.rate : b.rate * 1.2;
+        const effRate = b.rate;
         const tax = Math.round(dpp * effRate);
         layers.push({ label: b.label, dpp, rate: effRate, tax });
         totalTax += tax;
@@ -2065,7 +3081,6 @@
       const months = Math.max(0, Math.min(11, parseInt(document.getElementById("sevMonths").value, 10) || 0));
       const totalMonths = years * 12 + months;
       const fullYears = Math.floor(totalMonths / 12);
-      const hasValidNik = document.getElementById("hasValidNikNpwp").checked;
 
       let totalBruto = 0;
       let totalTax = 0;
@@ -2209,7 +3224,7 @@
         const komponenPesangonUtama = upNominal + upmkNominal + uangPisah + tambahanBumn;
         if (komponenPesangonUtama > 0) {
           taxSchemeLabel = "PPh 21 Final Pesangon (PP 68/2009)";
-          const finalTax = calculatePph21FinalPesangon(totalBruto, hasValidNik);
+          const finalTax = calculatePph21FinalPesangon(totalBruto);
           totalTax = finalTax.totalTax;
           rows.push({ sec: "B. Lapisan PPh 21 Final Pesangon (PP No. 68 Tahun 2009)" });
           finalTax.layers.forEach(l => {
@@ -2228,11 +3243,22 @@
 
       const thp = Math.max(0, totalBruto - totalTax);
 
+      document.getElementById("sevHeroEyebrow").textContent =
+        contractStatus === "PKWT" ? "Kompensasi PKWT Bersih Diterima" : "Total Paket Pesangon Bersih Diterima";
       document.getElementById("sevTaxSchemeBadge").textContent = taxSchemeLabel;
       document.getElementById("sevThpDisplay").textContent = formatRp(thp);
       document.getElementById("sevBrutoDisplay").textContent = formatRp(totalBruto);
       document.getElementById("sevTaxDisplay").textContent = formatRp(totalTax);
       document.getElementById("sevTerbilang").textContent = "Terbilang: " + terbilang(thp);
+
+      // Update Severance Proportion Bar
+      const baseSev = Math.max(1, totalBruto);
+      const pctSevThp = totalBruto > 0 ? Math.max(0, Math.min(100, (thp / baseSev) * 100)) : 0;
+      const pctSevTax = totalBruto > 0 ? Math.max(0, Math.min(100, (totalTax / baseSev) * 100)) : 0;
+      document.getElementById("barSevThp").style.width = pctSevThp.toFixed(1) + "%";
+      document.getElementById("barSevTax").style.width = pctSevTax.toFixed(1) + "%";
+      document.getElementById("pctSevThp").textContent = pctSevThp.toFixed(1) + "%";
+      document.getElementById("pctSevTax").textContent = pctSevTax.toFixed(1) + "%";
 
       renderAccTable("severanceResultBody", rows);
 
@@ -2269,7 +3295,148 @@
     }
 
     /* =========================================================================
-       4. UI CONTROLLERS
+       5. REGULATIONS TAB RENDERER
+       ========================================================================= */
+    function switchRegSubtab(sub) {
+      activeRegSubtab = sub;
+      document.getElementById("btnRegTabCatalog").classList.toggle("active", sub === "CATALOG");
+      document.getElementById("btnRegTabMatrix").classList.toggle("active", sub === "MATRIX");
+      document.getElementById("regSubCatalog").hidden = (sub !== "CATALOG");
+      document.getElementById("regSubMatrix").hidden = (sub !== "MATRIX");
+    }
+
+    function renderRegulationReferenceTables() {
+      // 1. Tabel UP (Pasal 40 ayat 2 PP 35/2021)
+      const upSchedules = [
+        ["Masa kerja < 1 tahun", 0],
+        ["1 tahun atau lebih tetapi < 2 tahun", 1],
+        ["2 tahun atau lebih tetapi < 3 tahun", 2],
+        ["3 tahun atau lebih tetapi < 4 tahun", 3],
+        ["4 tahun atau lebih tetapi < 5 tahun", 4],
+        ["5 tahun atau lebih tetapi < 6 tahun", 5],
+        ["6 tahun atau lebih tetapi < 7 tahun", 6],
+        ["7 tahun atau lebih tetapi < 8 tahun", 7],
+        ["8 tahun atau lebih", 8]
+      ];
+      document.getElementById("regUpTableBody").innerHTML = upSchedules.map(([label, yr]) =>
+        `<tr><td>${label}</td><td class="amt pos">${getBaseUpMonths(yr)} Bulan Upah</td></tr>`
+      ).join("");
+
+      // 2. Tabel UPMK (Pasal 40 ayat 3 PP 35/2021)
+      const upmkSchedules = [
+        ["Masa kerja < 3 tahun", 0],
+        ["3 tahun atau lebih tetapi < 6 tahun", 3],
+        ["6 tahun atau lebih tetapi < 9 tahun", 6],
+        ["9 tahun atau lebih tetapi < 12 tahun", 9],
+        ["12 tahun atau lebih tetapi < 15 tahun", 12],
+        ["15 tahun atau lebih tetapi < 18 tahun", 15],
+        ["18 tahun atau lebih tetapi < 21 tahun", 18],
+        ["21 tahun atau lebih tetapi < 24 tahun", 21],
+        ["24 tahun atau lebih", 24]
+      ];
+      document.getElementById("regUpmkTableBody").innerHTML = upmkSchedules.map(([label, yr]) => {
+        const m = getBaseUpmkMonths(yr);
+        return `<tr><td>${label}</td><td class="amt ${m > 0 ? "pos" : ""}">${m} Bulan Upah</td></tr>`;
+      }).join("");
+
+      // 3. Tabel BPJS & PT Taspen
+      const bpjsRows = [
+        { sec: "BPJS Kesehatan & BPJS Ketenagakerjaan (Badan Usaha / BLUD)" },
+        { label: `BPJS Kesehatan (Plafon Upah ${formatRp(BPJS_CAPS_2026.KESEHATAN_MAX_UPAH)})`, emp: "4,00%", wrk: "1,00%" },
+        { label: "Jaminan Kecelakaan Kerja (JKK — Kelompok I s.d. V)", emp: "0,24% – 1,74%", wrk: "0,00%" },
+        { label: "Jaminan Kematian (JKM)", emp: "0,30%", wrk: "0,00%" },
+        { label: "Jaminan Hari Tua (JHT)", emp: "3,70%", wrk: "2,00%" },
+        { label: `Jaminan Pensiun (JP — Plafon Upah ${formatRp(BPJS_CAPS_2026.TK_JP_MAX_UPAH)})`, emp: "2,00%", wrk: "1,00%" },
+        { label: "Jaminan Kehilangan Pekerjaan (JKP — Rekomposisi)", emp: "0,00% (Subsidi)", wrk: "0,00%" },
+        { sec: "PT Taspen (Aparatur Sipil Negara — PNS)" },
+        { label: "Tabungan Hari Tua (THT) & Pensiun PNS", emp: "APBN / APBD", wrk: "3,25% + 4,75%" },
+        { label: "JKK & JKM ASN (PP No. 70 Tahun 2015)", emp: "0,24% + 0,72%", wrk: "0,00%" }
+      ];
+      document.getElementById("regBpjsTableBody").innerHTML = bpjsRows.map(r => {
+        if (r.sec) return `<tr class="sec-head"><td colspan="3">${r.sec}</td></tr>`;
+        return `<tr><td>${r.label}</td><td class="amt">${r.emp}</td><td class="amt">${r.wrk}</td></tr>`;
+      }).join("");
+
+      // 4. Tabel Lapisan PPh 21 Final Pesangon & Kategori TER
+      const taxRows = [
+        { sec: "PPh 21 Final Uang Pesangon Dibayarkan Sekaligus (PP 68/2009)" },
+        ...PPH21_FINAL_PESANGON.map(b => ({
+          label: b.label.split(" — ")[0],
+          val: (b.rate * 100).toFixed(0) + "% Final"
+        })),
+        { sec: "Pengelompokan Kategori Tarif Efektif Rata-Rata / TER (PP 58/2023)" },
+        { label: "TK/0, TK/1, K/0 (PTKP Rp 54 Jt – Rp 58,5 Jt)", val: "TER Kategori A" },
+        { label: "TK/2, K/1, TK/3, K/2 (PTKP Rp 63 Jt – Rp 67,5 Jt)", val: "TER Kategori B" },
+        { label: "K/3 (PTKP Rp 72 Jt)", val: "TER Kategori C" }
+      ];
+      document.getElementById("regTaxTableBody").innerHTML = taxRows.map(r => {
+        if (r.sec) return `<tr class="sec-head"><td colspan="2">${r.sec}</td></tr>`;
+        return `<tr><td>${r.label}</td><td class="amt pos">${r.val}</td></tr>`;
+      }).join("");
+
+      // 5. Tabel Alasan PHK PP 35/2021
+      document.getElementById("regPhkReasonsTableBody").innerHTML = Object.values(PHK_REASONS_PP35).map(item => `
+        <tr>
+          <td>${item.label.split(" — ")[0]}</td>
+          <td class="amt">${item.upMult}x UP</td>
+          <td class="amt">${item.upmkMult}x UPMK</td>
+          <td class="amt">${item.uangPisah ? "UPH + Uang Pisah" : "UPH Aktif"}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderRegulationsView() {
+      const entityKey = document.getElementById("globalEntityProfile").value;
+      const entityProfile = ENTITY_PROFILES[entityKey];
+      document.getElementById("regActiveEntityBadge").textContent = "Profil: " + entityProfile.shortTag;
+
+      const q = (document.getElementById("regSearchInput")?.value || "").toLowerCase().trim();
+      const catFilter = document.getElementById("regCategoryFilter")?.value || "ALL";
+      const container = document.getElementById("regCardsContainer");
+
+      const filtered = REGULATION_CATALOG.filter(reg => {
+        const matchesEntity = reg.entities.includes(entityKey);
+        if (catFilter === "MATCH_ENTITY" && !matchesEntity) return false;
+        if (catFilter !== "ALL" && catFilter !== "MATCH_ENTITY" && reg.category !== catFilter) return false;
+        if (!q) return true;
+        const haystack = (
+          reg.number + " " +
+          reg.title + " " +
+          reg.categoryLabel + " " +
+          reg.summary + " " +
+          reg.points.join(" ")
+        ).toLowerCase();
+        return haystack.includes(q);
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:24px;">Tidak ditemukan regulasi yang sesuai dengan filter atau kata kunci pencarian.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(reg => {
+        const isMatched = reg.entities.includes(entityKey);
+        return `
+          <article class="reg-card ${isMatched ? "reg-match-profile" : ""}">
+            <div>
+              <div class="reg-badge-row">
+                <span class="reg-cat-badge">${reg.categoryLabel}</span>
+                ${isMatched ? `<span class="reg-active-badge">Berlaku: ${entityProfile.shortTag}</span>` : ""}
+              </div>
+              <div class="reg-number">${reg.number}</div>
+              <div class="reg-title">${reg.title}</div>
+              <p class="reg-summary">${reg.summary}</p>
+              <ul class="reg-points">
+                ${reg.points.map(pt => `<li>${pt}</li>`).join("")}
+              </ul>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    /* =========================================================================
+       6. UI CONTROLLERS
        ========================================================================= */
     function handleEntityChange() {
       const key = document.getElementById("globalEntityProfile").value;
@@ -2294,6 +3461,7 @@
       document.getElementById("panelBludPerkada").hidden = (key !== "NON_ASN_BLUD");
 
       recalculateAll();
+      renderRegulationsView();
     }
 
     function setContractStatus(mode) {
@@ -2320,16 +3488,41 @@
       document.getElementById("creatorModal").hidden = !show;
     }
 
+    const TAB_META = {
+      payroll: {
+        title: "Simulasi Payroll, BPJS & PPh 21",
+        sub: "Perhitungan upah bulanan, iuran jaminan sosial & tarif efektif rata-rata (TER)"
+      },
+      severance: {
+        title: "Simulasi Pesangon & Kompensasi PKWT",
+        sub: "Perhitungan hak pengakhiran hubungan kerja sesuai PP No. 35 Tahun 2021 & PPh 21"
+      },
+      regulations: {
+        title: "Regulasi Ketenagakerjaan, Jaminan Sosial & Perpajakan",
+        sub: "Dasar hukum pengupahan, BPJS, PT Taspen, Pesangon PP 35/2021, Kompensasi PKWT & PPh 21"
+      },
+      history: {
+        title: "Riwayat & Arsip Simulasi",
+        sub: "Penyimpanan lokal perangkat untuk cetak ulang slip PDF maupun laporan"
+      }
+    };
+
     function switchTab(tabName) {
       activeTabName = tabName;
       document.querySelectorAll(".tab-view").forEach(v => v.hidden = true);
       document.getElementById("view-" + tabName).hidden = false;
 
-      document.querySelectorAll(".nav-tab, .mob-tab").forEach(btn => {
+      document.querySelectorAll(".side-tab[data-tab], .mob-tab[data-tab]").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.tab === tabName);
       });
 
+      if (TAB_META[tabName]) {
+        document.getElementById("desktopPageTitle").textContent = TAB_META[tabName].title;
+        document.getElementById("desktopPageSub").textContent = TAB_META[tabName].sub;
+      }
+
       if (tabName === "history") renderHistoryTable();
+      if (tabName === "regulations") renderRegulationsView();
       updateMobileLiveBar();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -2340,7 +3533,7 @@
     }
 
     /* =========================================================================
-       5. OFFLINE STORAGE ENGINE (INDEXEDDB + LOCALSTORAGE FALLBACK)
+       7. OFFLINE STORAGE ENGINE (INDEXEDDB + LOCALSTORAGE FALLBACK)
        ========================================================================= */
     const DB_NAME = "SimulatorKetenagakerjaanID_DB";
     const STORE_NAME = "simulations";
@@ -2442,7 +3635,7 @@
     }
 
     function updateHistoryBadges() {
-      document.getElementById("historyCountBadge").textContent = historyCache.length;
+      document.getElementById("sideHistoryCount").textContent = historyCache.length;
       document.getElementById("mobHistoryCount").textContent = historyCache.length;
     }
 
@@ -2462,7 +3655,7 @@
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#64748B;padding:18px;">Belum ada riwayat simulasi tersimpan.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#64748B;padding:20px;">Belum ada riwayat simulasi tersimpan.</td></tr>`;
         return;
       }
 
@@ -2475,15 +3668,15 @@
           <td class="amt">${formatRp(item.bruto)}</td>
           <td class="amt pos"><strong>${formatRp(item.thp)}</strong></td>
           <td style="white-space:nowrap;">
-            <button class="btn btn-outline btn-sm" onclick="printSavedItem('${item.id}')">PDF</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteHistoryItem('${item.id}')">Hapus</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="printSavedItem('${item.id}')">PDF</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="deleteHistoryItem('${item.id}')">Hapus</button>
           </td>
         </tr>
       `).join("");
     }
 
     /* =========================================================================
-       6. EXPORT ENGINE (PRINT / PDF A4 & EXCEL + WATERMARK)
+       8. EXPORT ENGINE (PRINT / PDF A4 & EXCEL + WATERMARK)
        ========================================================================= */
     function buildPrintHtml(data) {
       const title = data.type === "PAYROLL"
@@ -2500,7 +3693,7 @@
         <div class="print-header">
           <div>
             <div class="print-title">${title}</div>
-            <div style="font-size:9.5pt;color:#475569;">Simulator Ketenagakerjaan Indonesia — Dokumen Perhitungan Normatif</div>
+            <div style="font-size:9.5pt;color:#475569;">SimKerja ID — Simulator Ketenagakerjaan Indonesia</div>
           </div>
           <div style="font-size:9pt;text-align:right;">Dicetak: ${new Date().toLocaleDateString("id-ID", { dateStyle: "long" })}</div>
         </div>
@@ -2523,20 +3716,22 @@
           <tbody>${tableRows}</tbody>
         </table>
 
-        <div style="font-size:8.5pt;color:#334155;border:1px solid #CBD5E1;padding:8px;border-radius:4px;">
-          <strong>Dasar Hukum Acuan:</strong>
-          <ul style="margin-left:16px;margin-top:3px;">
-            ${data.legalBasis.map(l => `<li>${l}</li>`).join("")}
-          </ul>
-        </div>
+        <div class="print-closing-group">
+          <div style="font-size:8.5pt;color:#334155;border:1px solid #CBD5E1;padding:8px;border-radius:4px;">
+            <strong>Dasar Hukum Acuan:</strong>
+            <ul style="margin-left:16px;margin-top:3px;">
+              ${data.legalBasis.map(l => `<li>${l}</li>`).join("")}
+            </ul>
+          </div>
 
-        <div class="print-sign">
-          <div>Mengetahui,<br>Bagian SDM / Keuangan<br><br><br><br>( _______________________ )</div>
-          <div>Diterima / Disetujui oleh,<br>Pegawai / Pekerja<br><br><br><br>( ${data.empName} )</div>
-        </div>
+          <div class="print-sign">
+            <div>Mengetahui,<br>Bagian SDM / Keuangan<br><br><br><br>( _______________________ )</div>
+            <div>Diterima / Disetujui oleh,<br>Pegawai / Pekerja<br><br><br><br>( ${data.empName} )</div>
+          </div>
 
-        <div style="margin-top:22px; padding-top:6px; border-top:1px dashed #CBD5E1; font-size:8pt; color:#64748B; text-align:center;">
-          Dokumen ini dihasilkan menggunakan <strong>Simulator Ketenagakerjaan Indonesia</strong> — Karya <strong>Dul Muid (Bang Dul)</strong>
+          <div style="margin-top:18px; padding-top:6px; border-top:1px dashed #CBD5E1; font-size:8pt; color:#64748B; text-align:center;">
+            Dokumen ini dihasilkan menggunakan <strong>SimKerja ID (Simulator Ketenagakerjaan Indonesia)</strong> — Karya <strong>Dul Muid (Bang Dul)</strong>
+          </div>
         </div>
       `;
     }
@@ -2565,11 +3760,11 @@
         return;
       }
 
-      const fileName = `Simulasi_${data.type}_${data.empName.replace(/\s+/g, "_")}_${Date.now()}`;
+      const fileName = `SimKerjaID_${data.type}_${data.empName.replace(/\s+/g, "_")}_${Date.now()}`;
 
       if (window.XLSX) {
         const aoa = [
-          ["SIMULATOR KETENAGAKERJAAN INDONESIA — KARYA DUL MUID (BANG DUL)"],
+          ["SIMKERJA ID — SIMULATOR KETENAGAKERJAAN INDONESIA (KARYA DUL MUID / BANG DUL)"],
           ["Nama Pegawai", data.empName],
           ["Profil Instansi", data.profileLabel],
           ["Status PTKP", data.ptkpStatus],
@@ -2584,7 +3779,7 @@
         });
         aoa.push([], ["Dasar Hukum Acuan"]);
         data.legalBasis.forEach(l => aoa.push([l]));
-        aoa.push([], ["Dibuat dengan Simulator Ketenagakerjaan Indonesia — Karya Dul Muid (Bang Dul)"]);
+        aoa.push([], ["Dibuat dengan SimKerja ID — Karya Dul Muid (Bang Dul)"]);
 
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(aoa);
@@ -2606,13 +3801,14 @@
     }
 
     /* =========================================================================
-       7. PWA SERVICE WORKER & INSTALL PROMPT HANDLER
+       9. PWA SERVICE WORKER & INSTALL PROMPT HANDLER
        ========================================================================= */
     let deferredInstallPrompt = null;
 
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferredInstallPrompt = e;
+      document.getElementById("btnInstallDesktop").hidden = false;
       document.getElementById("installBanner").hidden = false;
       document.getElementById("modalInstallRow").hidden = false;
     });
@@ -2626,6 +3822,7 @@
       deferredInstallPrompt.prompt();
       const { outcome } = await deferredInstallPrompt.userChoice;
       if (outcome === "accepted") {
+        document.getElementById("btnInstallDesktop").hidden = true;
         document.getElementById("installBanner").hidden = true;
         document.getElementById("modalInstallRow").hidden = true;
         showToast("Aplikasi sedang diinstal ke perangkat...");
@@ -2634,14 +3831,18 @@
     }
 
     function updateNetworkBadge() {
-      const dot = document.getElementById("netDot");
-      const txt = document.getElementById("netText");
+      const sideDot = document.getElementById("sideNetDot");
+      const sideTxt = document.getElementById("sideNetText");
+      const mobDot = document.getElementById("mobNetDot");
+
       if (navigator.onLine) {
-        dot.classList.remove("offline");
-        txt.textContent = "Offline Ready";
+        sideDot.classList.remove("offline");
+        sideTxt.textContent = "Offline Ready";
+        if (mobDot) mobDot.style.background = "#10B981";
       } else {
-        dot.classList.add("offline");
-        txt.textContent = "Mode Offline";
+        sideDot.classList.add("offline");
+        sideTxt.textContent = "Mode Offline";
+        if (mobDot) mobDot.style.background = "#F59E0B";
       }
     }
 
@@ -2652,7 +3853,7 @@
     }
 
     /* =========================================================================
-       8. INITIALIZATION
+       10. INITIALIZATION
        ========================================================================= */
     window.addEventListener("online", updateNetworkBadge);
     window.addEventListener("offline", updateNetworkBadge);
@@ -2666,6 +3867,7 @@
         reasonSel.appendChild(opt);
       });
 
+      renderRegulationReferenceTables();
       updateNetworkBadge();
       registerOfflineServiceWorker();
       handleEntityChange();
